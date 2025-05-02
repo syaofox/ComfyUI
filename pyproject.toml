@@ -33,7 +33,7 @@ dependencies = [
     "mediapipe>=0.10.14",
     "mss>=10.0.0",
     "numba>=0.61.2",
-    "numpy>=1.26.4",
+    "numpy==1.26.4",
     "omegaconf>=2.3.0",
     "onnxruntime>=1.17.1",
     "onnxruntime-gpu>=1.21.1 ; platform_machine == 'x86_64' and sys_platform != 'darwin'",

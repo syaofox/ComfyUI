@@ -501,7 +501,7 @@ requires-dist = [
     { name = "mediapipe", specifier = ">=0.10.14" },
     { name = "mss", specifier = ">=10.0.0" },
     { name = "numba", specifier = ">=0.61.2" },
-    { name = "numpy", specifier = ">=1.26.4" },
+    { name = "numpy", specifier = "==1.26.4" },
     { name = "omegaconf", specifier = ">=2.3.0" },
     { name = "onnxruntime", specifier = ">=1.17.1" },
     { name = "onnxruntime-gpu", marker = "platform_machine == 'x86_64' and sys_platform != 'darwin'", specifier = ">=1.21.1" },
