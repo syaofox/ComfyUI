@@ -394,7 +394,7 @@ wheels = [
 
 [[package]]
 name = "comfyui"
-version = "0.3.30"
+version = "0.3.31"
 source = { virtual = "." }
 dependencies = [
     { name = "accelerate" },
@@ -477,11 +477,11 @@ requires-dist = [
     { name = "addict", specifier = ">=2.4.0" },
     { name = "aiohttp", specifier = ">=3.11.8" },
     { name = "albumentations", specifier = ">=1.4.10" },
-    { name = "av", specifier = ">=14.1.0" },
+    { name = "av", specifier = ">=14.2.0" },
     { name = "blend-modes", specifier = ">=2.2.0" },
     { name = "color-matcher", specifier = ">=0.6.0" },
     { name = "colour-science", specifier = ">=0.4.6" },
-    { name = "comfyui-frontend-package", specifier = "==1.17.11" },
+    { name = "comfyui-frontend-package", specifier = "==1.18.6" },
     { name = "comfyui-workflow-templates", specifier = "==0.1.3" },
     { name = "diffusers", specifier = ">=0.26.3" },
     { name = "dill", specifier = ">=0.4.0" },
@@ -501,7 +501,7 @@ requires-dist = [
     { name = "mediapipe", specifier = ">=0.10.14" },
     { name = "mss", specifier = ">=10.0.0" },
     { name = "numba", specifier = ">=0.61.2" },
-    { name = "numpy", specifier = "==1.26.4" },
+    { name = "numpy", specifier = ">=1.25.0" },
     { name = "omegaconf", specifier = ">=2.3.0" },
     { name = "onnxruntime", specifier = ">=1.17.1" },
     { name = "onnxruntime-gpu", marker = "platform_machine == 'x86_64' and sys_platform != 'darwin'", specifier = ">=1.21.1" },
@@ -549,11 +549,11 @@ requires-dist = [
 
 [[package]]
 name = "comfyui-frontend-package"
-version = "1.17.11"
+version = "1.18.6"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/d0/24/fde9a12b9138dd5f30c8fa47f8ea991d2bbe13c5243b55deee1fed240f31/comfyui_frontend_package-1.17.11.tar.gz", hash = "sha256:bf661f97bdf486f18457e9055ef6b79402450de715a65be5f8be576373c974d5", size = 8821768, upload_time = "2025-04-23T22:06:15.405Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ba/9b/1a09ca0c0d636f6c05d381221a60cd011f9210007fe72afa3d8f63109ea8/comfyui_frontend_package-1.18.6.tar.gz", hash = "sha256:92f41f46a44eb7a1909d60880f14ae58a2a699fe022b41644c4efa8f9a8741a8", size = 8851128, upload_time = "2025-05-02T15:01:20.195Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/51/8a/67d0b2b91cb3043065271e81b106b5f9dfab4b927545e246743be1ad4e4f/comfyui_frontend_package-1.17.11-py3-none-any.whl", hash = "sha256:5ef354ef065ece2c0d6724c5ff92b67641efb7ba3ff93e4a29337a84c0fa7d07", size = 8983176, upload_time = "2025-04-23T22:06:12.619Z" },
+    { url = "https://files.pythonhosted.org/packages/3e/aa/2eb6df640006a1e3ab9ebf09a58bd66775001f9b18b16d224dd82084e5fe/comfyui_frontend_package-1.18.6-py3-none-any.whl", hash = "sha256:025441d734f89310f0235c73fa89e7493890dcf86020bf496c8d93bfe308666b", size = 9017710, upload_time = "2025-05-02T15:01:18.333Z" },
 ]
 
 [[package]]
