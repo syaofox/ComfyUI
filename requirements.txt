@@ -5,7 +5,7 @@ torch
 torchsde
 torchvision
 torchaudio
-numpy>=1.25.0
+numpy>=1.20.0
 einops
 transformers>=4.37.2
 tokenizers>=0.13.3
@@ -14,8 +14,8 @@ safetensors>=0.4.2
 aiohttp>=3.11.8
 yarl>=1.18.0
 pyyaml
-Pillow
-scipy
+Pillow>=8.0.0
+scipy>=1.7.0
 tqdm
 psutil
 alembic
@@ -28,3 +28,9 @@ soundfile
 av>=14.2.0
 pydantic~=2.0
 pydantic-settings~=2.0
+
+opencv-python>=4.5.0
+mediapipe>=0.8.0
+onnxruntime>=1.9.0
+onnx>=1.10.0
+requests>=2.25.0
