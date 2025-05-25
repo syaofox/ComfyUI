@@ -412,7 +412,7 @@ wheels = [
 
 [[package]]
 name = "comfyui"
-version = "0.3.34"
+version = "0.3.36"
 source = { virtual = "." }
 dependencies = [
     { name = "accelerate" },
@@ -513,8 +513,8 @@ requires-dist = [
     { name = "chardet", specifier = ">=5.2.0" },
     { name = "color-matcher", specifier = ">=0.6.0" },
     { name = "colour-science", specifier = ">=0.4.6" },
-    { name = "comfyui-frontend-package", specifier = "==1.19.9" },
-    { name = "comfyui-workflow-templates", specifier = "==0.1.14" },
+    { name = "comfyui-frontend-package", specifier = "==1.20.5" },
+    { name = "comfyui-workflow-templates", specifier = "==0.1.18" },
     { name = "diffusers", specifier = ">=0.26.3" },
     { name = "dill", specifier = ">=0.4.0" },
     { name = "dlib", specifier = ">=19.24.8" },
@@ -594,20 +594,20 @@ requires-dist = [
 
 [[package]]
 name = "comfyui-frontend-package"
-version = "1.19.9"
+version = "1.20.5"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/fb/c8/de624df505c68c25733bb23682645e5c850ac53b2fba197914f5eeddabb3/comfyui_frontend_package-1.19.9.tar.gz", hash = "sha256:7e5fcf8be677e21044c761bc302f2e7ac19a687524322f34710984e6fc72f618", size = 9028380, upload_time = "2025-05-12T20:27:22.609Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/4e/ef/dd7d85470bb534982cb2d48b1500dd63052be89d6b650baf132055437c43/comfyui_frontend_package-1.20.5.tar.gz", hash = "sha256:ac360ba3a69c1055f0337371aaebe0b6a6f020b69fd2db4099c970e7d9e8364b", size = 9021080, upload_time = "2025-05-24T03:08:14.397Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/05/b5/b34f6c3205e242f49f07dbb7f2d7b1d29cb5742839f6376a6d1900ad32f0/comfyui_frontend_package-1.19.9-py3-none-any.whl", hash = "sha256:580ea68ea59af2fd9246457cdef1571fafb2ad14e3bbef98282f92c0611c01a9", size = 9203340, upload_time = "2025-05-12T20:27:20.412Z" },
+    { url = "https://files.pythonhosted.org/packages/4b/b0/3e9026cd6288597ed8766d108d58ce31399f2161d3eb9a8a4d2489d76c9c/comfyui_frontend_package-1.20.5-py3-none-any.whl", hash = "sha256:9d91db3c4b3375be7bc109f4b3997be33daf116d4060a0dfad595d06f707f961", size = 9197256, upload_time = "2025-05-24T03:08:12.439Z" },
 ]
 
 [[package]]
 name = "comfyui-workflow-templates"
-version = "0.1.14"
+version = "0.1.18"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/01/96/d13d16dea915ec2a3f5754911a5de6ea04f293c7fb77da7262eabff200ae/comfyui_workflow_templates-0.1.14.tar.gz", hash = "sha256:849f09b11620cb9897ccc40b77de10e6e4a6f0fab2c3546afce5aec8aa7b8382", size = 46802064, upload_time = "2025-05-10T22:20:11.538Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/2b/20/4de802e969f6596be43d4c67113bea9494263124a429d654ba908be4cb5b/comfyui_workflow_templates-0.1.18.tar.gz", hash = "sha256:8527b02d1fd40385c3a400e33148bf3faa9db01c22193f31c499464b0d75bf3a", size = 56679751, upload_time = "2025-05-21T09:01:42.561Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ba/2a/e2bae63eb17774c342bf61bd5f4402f5e2bed3600287ed3eee26ea94e97b/comfyui_workflow_templates-0.1.14-py3-none-any.whl", hash = "sha256:333d1aada827cf9193444afd409d1c9ac5e0c736885ed0a137b51121335a533a", size = 46800071, upload_time = "2025-05-10T22:20:07.848Z" },
+    { url = "https://files.pythonhosted.org/packages/c1/fe/d3b4acf09448b0cd517841cbc195d1929687310ab48bbbba5bccc8fbb497/comfyui_workflow_templates-0.1.18-py3-none-any.whl", hash = "sha256:e3b6e5a6da5890915d8c10bcfe6b05340dcddf1e455f928b113b8b2b2397fd27", size = 56680811, upload_time = "2025-05-21T09:01:38.466Z" },
 ]
 
 [[package]]
