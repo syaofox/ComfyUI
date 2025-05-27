@@ -104,6 +104,7 @@ dependencies = [
     "yarl>=1.18.0",
     "comfy-script",
     "facexlib>=0.3.0",
+    "xformers",
 ]
 
 [project.urls]
