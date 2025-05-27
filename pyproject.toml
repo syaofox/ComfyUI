@@ -103,6 +103,7 @@ dependencies = [
     "yapf>=0.43.0",
     "yarl>=1.18.0",
     "comfy-script",
+    "facexlib>=0.3.0",
 ]
 
 [project.urls]
