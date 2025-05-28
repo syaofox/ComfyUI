@@ -598,6 +598,7 @@ dependencies = [
     { name = "ftfy" },
     { name = "fvcore" },
     { name = "gitpython" },
+    { name = "groundingdino-py" },
     { name = "huggingface-hub" },
     { name = "imageio-ffmpeg" },
     { name = "importlib-metadata" },
@@ -704,7 +705,8 @@ requires-dist = [
     { name = "ftfy", specifier = ">=6.3.1" },
     { name = "fvcore", specifier = ">=0.1.5.post20221221" },
     { name = "gitpython", specifier = ">=3.1.44" },
-    { name = "huggingface-hub", specifier = ">0.20" },
+    { name = "groundingdino-py", path = ".cache/groundingdino_py-0.4.0-py2.py3-none-any.whl" },
+    { name = "huggingface-hub", specifier = ">=0.19.0" },
     { name = "imageio-ffmpeg", specifier = ">=0.5.1" },
     { name = "importlib-metadata", specifier = ">=8.6.1" },
     { name = "insightface", specifier = "==0.7.3" },
@@ -720,19 +722,19 @@ requires-dist = [
     { name = "nest-asyncio", specifier = "~=1.0,>=1.5.9" },
     { name = "networkx", extras = ["default"], specifier = "~=3.0" },
     { name = "numba", specifier = ">=0.61.2" },
-    { name = "numpy", specifier = ">=1.20.0" },
+    { name = "numpy", specifier = ">=1.22.0" },
     { name = "omegaconf", specifier = ">=2.3.0" },
     { name = "onnx", specifier = ">=1.10.0" },
     { name = "onnx2torch", specifier = ">=1.5.15" },
-    { name = "onnxruntime", specifier = ">=1.9.0" },
-    { name = "onnxruntime-gpu", specifier = ">=1.21.1" },
+    { name = "onnxruntime", specifier = ">=1.15.0" },
+    { name = "onnxruntime-gpu", specifier = ">=1.15.0" },
     { name = "onnxruntime-gpu", marker = "platform_machine == 'x86_64' and sys_platform != 'darwin'", specifier = ">=1.21.1" },
     { name = "opencv-contrib-python", specifier = ">=4.11.0.86" },
-    { name = "opencv-python", specifier = ">=4.5.0" },
+    { name = "opencv-python", specifier = ">=4.7.0" },
     { name = "opencv-python-headless", specifier = ">=4.11.0.86" },
     { name = "pandas", specifier = ">=2.2.3" },
     { name = "piexif", specifier = ">=1.1.3" },
-    { name = "pillow", specifier = ">=8.0.0" },
+    { name = "pillow", specifier = ">=9.0.0" },
     { name = "pixeloe", specifier = ">=0.1.4" },
     { name = "psutil", specifier = ">=7.0.0" },
     { name = "pydantic", specifier = "~=2.0" },
@@ -744,10 +746,10 @@ requires-dist = [
     { name = "rembg", specifier = ">=2.0.65" },
     { name = "requests", specifier = ">=2.25.0" },
     { name = "rich", specifier = ">=13.7.1" },
-    { name = "safetensors", specifier = ">=0.4.2" },
+    { name = "safetensors", specifier = ">=0.3.0" },
     { name = "scikit-image", specifier = ">=0.24.0" },
     { name = "scikit-learn", specifier = ">=1.6.1" },
-    { name = "scipy", specifier = ">=1.7.0" },
+    { name = "scipy", specifier = ">=1.10.0" },
     { name = "segment-anything", specifier = ">=1.0" },
     { name = "sentencepiece", specifier = ">=0.2.0" },
     { name = "soundfile", specifier = ">=0.13.1" },
@@ -756,17 +758,17 @@ requires-dist = [
     { name = "timm", specifier = ">=1.0.7" },
     { name = "tokenizers", specifier = ">=0.13.3" },
     { name = "toml", specifier = ">=0.10.2" },
-    { name = "torch", marker = "sys_platform != 'linux' and sys_platform != 'win32'", specifier = ">=2.7.0" },
-    { name = "torch", marker = "sys_platform == 'linux' or sys_platform == 'win32'", specifier = ">=2.7.0", index = "https://download.pytorch.org/whl/cu126" },
+    { name = "torch", marker = "sys_platform != 'linux' and sys_platform != 'win32'", specifier = ">=2.0.0" },
+    { name = "torch", marker = "sys_platform == 'linux' or sys_platform == 'win32'", specifier = ">=2.0.0", index = "https://download.pytorch.org/whl/cu126" },
     { name = "torchaudio", marker = "sys_platform != 'linux' and sys_platform != 'win32'", specifier = ">=2.7.0" },
     { name = "torchaudio", marker = "sys_platform == 'linux' or sys_platform == 'win32'", specifier = ">=2.7.0", index = "https://download.pytorch.org/whl/cu126" },
     { name = "torchdiffeq", specifier = ">=0.2.5" },
     { name = "torchsde", specifier = ">=0.2.6" },
-    { name = "torchvision", marker = "sys_platform != 'linux' and sys_platform != 'win32'", specifier = ">=0.22.0" },
-    { name = "torchvision", marker = "sys_platform == 'linux' or sys_platform == 'win32'", specifier = ">=0.22.0", index = "https://download.pytorch.org/whl/cu126" },
-    { name = "tqdm", specifier = ">=4.67.1" },
-    { name = "transformers", specifier = ">=4.28.1" },
-    { name = "transparent-background", specifier = ">=1.3.2" },
+    { name = "torchvision", marker = "sys_platform != 'linux' and sys_platform != 'win32'", specifier = ">=0.15.0" },
+    { name = "torchvision", marker = "sys_platform == 'linux' or sys_platform == 'win32'", specifier = ">=0.15.0", index = "https://download.pytorch.org/whl/cu126" },
+    { name = "tqdm", specifier = ">=4.65.0" },
+    { name = "transformers", specifier = ">=4.35.0" },
+    { name = "transparent-background", specifier = ">=1.2.4" },
     { name = "trimesh", extras = ["easy"], specifier = ">=4.6.8" },
     { name = "typer", specifier = ">=0.15.3" },
     { name = "typing-extensions", specifier = ">=4.13.2" },
@@ -1359,6 +1361,42 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/c0/89/37df0b71473153574a5cdef8f242de422a0f5d26d7a9e231e6f169b4ad14/gitpython-3.1.44.tar.gz", hash = "sha256:c87e30b26253bf5418b01b0660f818967f3c503193838337fe5e573331249269", size = 214196, upload-time = "2025-01-02T07:32:43.59Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1d/9a/4114a9057db2f1462d5c8f8390ab7383925fe1ac012eaa42402ad65c2963/GitPython-3.1.44-py3-none-any.whl", hash = "sha256:9e0e10cda9bed1ee64bc9a6de50e7e38a9c9943241cd7f585f6df3ed28011110", size = 207599, upload-time = "2025-01-02T07:32:40.731Z" },
+]
+
+[[package]]
+name = "groundingdino-py"
+version = "0.4.0"
+source = { path = ".cache/groundingdino_py-0.4.0-py2.py3-none-any.whl" }
+dependencies = [
+    { name = "addict" },
+    { name = "numpy" },
+    { name = "opencv-python" },
+    { name = "pycocotools" },
+    { name = "supervision" },
+    { name = "timm" },
+    { name = "torch", version = "2.7.0", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux' and sys_platform != 'win32'" },
+    { name = "torch", version = "2.7.0+cu126", source = { registry = "https://download.pytorch.org/whl/cu126" }, marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+    { name = "torchvision", version = "0.22.0", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux' and sys_platform != 'win32'" },
+    { name = "torchvision", version = "0.22.0+cu126", source = { registry = "https://download.pytorch.org/whl/cu126" }, marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+    { name = "transformers" },
+    { name = "yapf" },
+]
+wheels = [
+    { filename = "groundingdino_py-0.4.0-py2.py3-none-any.whl", hash = "sha256:7861ad022370a88f22948c7fa7034ad2de56c14e3e9eb7adea4b9079d6b0fe94" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "addict" },
+    { name = "numpy" },
+    { name = "opencv-python" },
+    { name = "pycocotools" },
+    { name = "supervision", specifier = "==0.6.0" },
+    { name = "timm" },
+    { name = "torch" },
+    { name = "torchvision" },
+    { name = "transformers" },
+    { name = "yapf" },
 ]
 
 [[package]]
@@ -2990,6 +3028,25 @@ wheels = [
 ]
 
 [[package]]
+name = "pycocotools"
+version = "2.0.8"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "matplotlib" },
+    { name = "numpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/6b/1a/cdfce175d663568215b3a6b6170ad2a526932cc1021dffabda56a5c3f189/pycocotools-2.0.8.tar.gz", hash = "sha256:8f2bcedb786ba26c367a3680f9c4eb5b2ad9dccb2b34eaeb205e0a021e1dfb8d", size = 24993, upload-time = "2024-06-17T04:26:51.711Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/20/b6/d3287bdb2f1954d5739337035a424b6ec012bc6fed0af476c92309cec001/pycocotools-2.0.8-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:dd4616621d062882db677de5c64b1b0f6efbcaed9fd284b61e7ba4b16ab24d7a", size = 162686, upload-time = "2024-06-17T04:26:34.317Z" },
+    { url = "https://files.pythonhosted.org/packages/ce/1d/3f32a8fd8b0d0c6f952f030ac90fceb318204c19de33b1cbc4cccee51a03/pycocotools-2.0.8-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:5683ba2612c39094a2e8453d40349768a3da6673376786651481d6f553ff7b50", size = 429594, upload-time = "2024-06-17T04:26:35.411Z" },
+    { url = "https://files.pythonhosted.org/packages/3c/ce/e51566bce4067327c299fe8b6de18f9275e0c0ceaf8e4820ea9af689101c/pycocotools-2.0.8-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b89f399eb851d18f68dfa7f126380394ec0820915c7b3831dd37563bc58daa95", size = 443497, upload-time = "2024-06-17T04:26:37.05Z" },
+    { url = "https://files.pythonhosted.org/packages/87/f2/038244a12c3297a2a7821bd6e72deaa350831c142b0380a14c9749009d83/pycocotools-2.0.8-cp312-cp312-musllinux_1_1_aarch64.whl", hash = "sha256:e6d528c4f35580347ee3cd57f92cf0926e9b6a688d0904b2ea8a814ae2e57a47", size = 428855, upload-time = "2024-06-17T04:26:38.191Z" },
+    { url = "https://files.pythonhosted.org/packages/74/fd/88025b72eaff58fe4066823ebecb3232c3b59f2a080cb3d4c974e1082732/pycocotools-2.0.8-cp312-cp312-musllinux_1_1_x86_64.whl", hash = "sha256:56bbe8be608def61da0b4430562b8d5ff14525f509631a667cfd8405325193da", size = 444322, upload-time = "2024-06-17T04:26:39.882Z" },
+    { url = "https://files.pythonhosted.org/packages/4a/9b/8f89d36e4a23166ccabe5c9fed00baffaa6a67609add316fc1334bbf4016/pycocotools-2.0.8-cp312-cp312-win_amd64.whl", hash = "sha256:d004033e760a172b2ccbdf4a62d20d2bcf0c9b40dc3c0d1d724045b0a6944862", size = 83255, upload-time = "2024-06-17T04:26:41.178Z" },
+    { url = "https://files.pythonhosted.org/packages/4d/82/73ba66a13b2288ecc60ed910dd8c16e6c584f3ca5407e706e5903d256712/pycocotools-2.0.8-cp312-cp312-win_arm64.whl", hash = "sha256:87853ca11e9b130e461d6b5284ea475efe35429060a915844e1998d206ba028e", size = 68922, upload-time = "2024-06-17T04:26:42.086Z" },
+]
+
+[[package]]
 name = "pycollada"
 version = "0.9"
 source = { registry = "https://pypi.org/simple" }
@@ -3956,6 +4013,20 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/19/bd/6de50e3b969ba417825ddd8cb6f36d34981cacb90d026769b5dca2d7e5fb/stringzilla-3.12.5-cp313-cp313-win32.whl", hash = "sha256:98d22acd6c06864df30df0860307fb6fb6ca98af0bdd0d0877fc182bf580afbd", size = 68637, upload-time = "2025-04-18T21:33:42.687Z" },
     { url = "https://files.pythonhosted.org/packages/a4/08/849dc695e49d017bc314b2e65a79c5ff1c140fc3f99b13df1e240597c8e1/stringzilla-3.12.5-cp313-cp313-win_amd64.whl", hash = "sha256:a921412385671db26dc4b078529ac6001c93445f06ff71e339a315c0e261d459", size = 80138, upload-time = "2025-04-18T21:33:44.243Z" },
     { url = "https://files.pythonhosted.org/packages/53/a1/d8d7144490b49598cdb166f4389614b251b35c531aeb5a29f424a3e42df4/stringzilla-3.12.5-cp313-cp313-win_arm64.whl", hash = "sha256:101d94f351d918144389ff316ff61efb06f645702078c48d7c4e0973b788fab9", size = 69748, upload-time = "2025-04-18T21:33:45.757Z" },
+]
+
+[[package]]
+name = "supervision"
+version = "0.6.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "matplotlib" },
+    { name = "numpy" },
+    { name = "opencv-python" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/4f/95/2e94efc178f17275a6e2cbffee079681695edf72d125b78d4755f49128aa/supervision-0.6.0.tar.gz", hash = "sha256:e1e3e54034c672414aca57b3f6c5e915967a15e1ffd1510956c61f12563a3c56", size = 26504, upload-time = "2023-04-19T21:03:48.401Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/42/7a/4fe657cae29eedeca34756a80a053ac3b1b3c80462cdb6768f428625f9ca/supervision-0.6.0-py3-none-any.whl", hash = "sha256:e0366fa4d32db84f94f4472a260414fc6fb01b69bdb0155c692c0dc62bdb9ea7", size = 31619, upload-time = "2023-04-19T21:03:46.052Z" },
 ]
 
 [[package]]
