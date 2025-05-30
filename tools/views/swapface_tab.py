@@ -32,14 +32,14 @@ class SwapfaceTab(ttk.Frame):
         self.max_history = 100
 
         row = 0
-        ttk.Label(self, text="人脸LoRA名(char)").grid(row=row, column=0, sticky='w')
+        ttk.Label(self, text="人脸LoRA名").grid(row=row, column=0, sticky='w')
         
         # 使用Combobox替代Entry
         self.char_combobox = ttk.Combobox(self, textvariable=self.char_var, width=28, state="readonly")
         self.char_combobox.grid(row=row, column=1, sticky='ew')
         
         # 添加刷新按钮
-        refresh_button = ttk.Button(self, text="刷新", width=3, command=self.refresh_lora_list)
+        refresh_button = ttk.Button(self, text="刷新", width=5, command=self.refresh_lora_list)
         refresh_button.grid(row=row, column=2, padx=2)
         
         row += 1

@@ -32,6 +32,8 @@ def run(char: str, input_path: str, output_path: str, repaint_hair: bool = True,
         if os.path.exists(out_path):
             if message_callback:
                 message_callback(f'{file} 已存在,跳过')
+            if progress_callback:
+                progress_callback(idx + 1, total) 
             continue
         try:
             queue.watch_display(False)
