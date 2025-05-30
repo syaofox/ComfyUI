@@ -165,11 +165,15 @@ def align_face(filepath, out_path):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="人脸对齐和裁剪")
     parser.add_argument("in_dir", type=str, help="输入图片目录路径")
-    parser.add_argument("out_dir", type=str, help="输出图片目录路径")
+    # parser.add_argument("out_dir", type=str, help="输出图片目录路径")
     args = parser.parse_args()
 
     in_dir = args.in_dir
-    out_dir = args.out_dir
+    # out_dir = args.out_dir
+
+
+    out_dir = os.path.join(r'D:\codes\aivision\fworker\assets\face_pieces',in_dir.split('\\')[-1])
+    print(out_dir)
 
     os.makedirs(out_dir, exist_ok=True)
 
