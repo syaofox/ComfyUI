@@ -648,6 +648,7 @@ dependencies = [
     { name = "spandrel" },
     { name = "svglib" },
     { name = "timm" },
+    { name = "tkinterdnd2" },
     { name = "tokenizers" },
     { name = "toml" },
     { name = "torch", version = "2.7.0", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux' and sys_platform != 'win32'" },
@@ -756,6 +757,7 @@ requires-dist = [
     { name = "spandrel", specifier = ">=0.4.1" },
     { name = "svglib", specifier = ">=1.5.1" },
     { name = "timm", specifier = ">=1.0.7" },
+    { name = "tkinterdnd2", specifier = ">=0.4.3" },
     { name = "tokenizers", specifier = ">=0.13.3" },
     { name = "toml", specifier = ">=0.10.2" },
     { name = "torch", marker = "sys_platform != 'linux' and sys_platform != 'win32'", specifier = ">=2.0.0" },
@@ -4138,6 +4140,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/7a/fd/7a5ee21fd08ff70d3d33a5781c255cbe779659bd03278feb98b19ee550f4/tinycss2-1.4.0.tar.gz", hash = "sha256:10c0972f6fc0fbee87c3edb76549357415e94548c1ae10ebccdea16fb404a9b7", size = 87085, upload-time = "2024-10-24T14:58:29.895Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e6/34/ebdc18bae6aa14fbee1a08b63c015c72b64868ff7dae68808ab500c492e2/tinycss2-1.4.0-py3-none-any.whl", hash = "sha256:3a49cf47b7675da0b15d0c6e1df8df4ebd96e9394bb905a5775adb0d884c5289", size = 26610, upload-time = "2024-10-24T14:58:28.029Z" },
+]
+
+[[package]]
+name = "tkinterdnd2"
+version = "0.4.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/6e/2a/9d50ee58c7a60bf0c8d4bd8030b4afc29c8bf60158f95dbc89e8081d29d2/tkinterdnd2-0.4.3.tar.gz", hash = "sha256:03a932a11b42ab139c4552b414aa10ee8a087b8386b52baca8c62939760c2ef2", size = 444595, upload-time = "2025-02-28T12:55:50.861Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/08/c3/e04f004a53c00dc01126b6f998264cef672c6883c36aa4bd65845a8eb4c0/tkinterdnd2-0.4.3-py3-none-any.whl", hash = "sha256:8804f5d2e2a99713ec93e85384397fec6bf66fdf2065e3750938d55018971c4a", size = 493006, upload-time = "2025-02-28T12:55:47.501Z" },
 ]
 
 [[package]]
