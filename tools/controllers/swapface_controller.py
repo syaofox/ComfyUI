@@ -15,7 +15,7 @@ class SwapfaceController:
         """
         self.model = model
         self.view = view
-        self._refresh_interval = 500  # ms
+        self._refresh_interval = 100  # ms，减少刷新间隔以更快捕获消息
         self._running = False
 
         # 绑定开始按钮事件
@@ -49,9 +49,23 @@ class SwapfaceController:
         """
         从 Model 获取 Tab 1 相关的数据，并调用 View 的方法更新显示
         """
+        # 更新进度条
         progress = self.model.get_progress()
-        message = self.model.get_message()
         self.view.set_progress(progress)
-        self.view.update_message(message)
+        
+        # 处理队列中的所有消息
+        try:
+            # 非阻塞方式检查是否有新消息
+            while not self.model.output_queue.empty():
+                message = self.model.output_queue.get(block=False)
+                self.view.update_message(message)
+        except Exception as e:
+            print(f"获取消息出错: {e}")
+        
+        # 显示当前消息状态（如果队列为空）
+        if not self.view.message_var.get():
+            message = self.model.get_message()
+            self.view.update_message(message)
+            
         if not self.model.is_running():
             self._running = False
