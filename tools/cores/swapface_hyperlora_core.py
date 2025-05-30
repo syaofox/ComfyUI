@@ -4,9 +4,19 @@ from comfy_script.runtime import *
 load()
 from comfy_script.runtime.nodes import *
 
-def run(char: str, input_path: str, output_path: str, repaint_hair: bool = True, progress_callback=None, message_callback=None):
+def run(char: str, input_path: str, output_path: str, repaint_hair: bool = True, progress_callback=None, message_callback=None, file_start_callback=None, file_error_callback=None):
     """
     批量换脸核心逻辑，支持进度和消息回调
+    
+    Args:
+        char: 人脸LoRA名称
+        input_path: 输入文件夹路径
+        output_path: 输出文件夹路径
+        repaint_hair: 是否重绘头发
+        progress_callback: 进度回调函数 (current, total) -> None
+        message_callback: 消息回调函数 (message) -> None
+        file_start_callback: 文件处理开始回调 (filepath) -> None
+        file_error_callback: 文件处理错误回调 (filepath, error) -> None
     """
     file_list = [f for f in os.listdir(input_path) if f.lower().endswith(('.jpg', '.png', '.jpeg', '.webp'))]
     total = len(file_list)
@@ -14,6 +24,11 @@ def run(char: str, input_path: str, output_path: str, repaint_hair: bool = True,
     for idx, file in enumerate(file_list):
         in_path = os.path.join(input_path, file)
         out_path = os.path.join(output_path, file)
+        
+        # 通知开始处理文件
+        if file_start_callback:
+            file_start_callback(in_path)
+            
         if os.path.exists(out_path):
             if message_callback:
                 message_callback(f'{file} 已存在,跳过')
@@ -54,7 +69,11 @@ def run(char: str, input_path: str, output_path: str, repaint_hair: bool = True,
             if message_callback:
                 message_callback(f'{file} 处理完成')
         except Exception as e:
+            error_msg = f'{file} 处理失败: {e}'
             if message_callback:
-                message_callback(f'{file} 处理失败: {e}')
+                message_callback(error_msg)
+            # 调用错误回调
+            if file_error_callback:
+                file_error_callback(in_path, str(e))
         if progress_callback:
             progress_callback(idx + 1, total) 
