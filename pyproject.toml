@@ -19,7 +19,7 @@ dependencies = [
     "comfyui-frontend-package==1.20.7",
     "comfyui-ib-customnodes>=0.2.1",
     "comfyui-tooling-nodes>=0.1.0",
-    "comfyui-workflow-templates==0.1.20",
+    "comfyui-workflow-templates==0.1.22",
     "diffusers>=0.26.3",
     "dill>=0.4.0",
     "dlib>=19.24.8",
