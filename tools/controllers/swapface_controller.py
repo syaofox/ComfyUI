@@ -18,27 +18,35 @@ class SwapfaceController:
         self._refresh_interval = 100  # ms，减少刷新间隔以更快捕获消息
         self._running = False
 
-        # 绑定开始按钮事件
-        self.view.get_start_button().config(command=self.start_swapface_task)
+        # 绑定开始/停止按钮事件
+        self.view.get_start_button().config(command=self.toggle_swapface_task)
 
         # 初始更新 View 显示
         self.update_view()
 
-    def start_swapface_task(self):
+    def toggle_swapface_task(self):
+        """切换开始/停止任务"""
         if self.model.is_running():
-            self.view.update_message('任务正在运行中...')
-            return
-        params = self.view.get_params()
-        self.model.set_params(
-            params['char'],
-            params['input_path'],
-            params['output_path'],
-            params['repaint_hair'],
-            params['copy_on_error']
-        )
-        self.model.start_swapface()
-        self._running = True
-        self._schedule_refresh()
+            # 如果正在运行，则停止任务
+            if self.model.stop_swapface():
+                self.view.update_message('正在停止任务，等待当前图片处理完成...')
+                # 更新按钮文本为"正在停止..."，并禁用按钮直到完全停止
+                self.view.set_button_stopping()
+        else:
+            # 如果没有运行，则开始任务
+            params = self.view.get_params()
+            self.model.set_params(
+                params['char'],
+                params['input_path'],
+                params['output_path'],
+                params['repaint_hair'],
+                params['copy_on_error']
+            )
+            self.model.start_swapface()
+            self._running = True
+            # 更新按钮文本为"停止任务"
+            self.view.set_button_stop()
+            self._schedule_refresh()
 
     def _schedule_refresh(self):
         if self._running:
@@ -68,5 +76,16 @@ class SwapfaceController:
             message = self.model.get_message()
             self.view.update_message(message)
             
-        if not self.model.is_running():
+        # 更新按钮状态
+        if self.model.is_running():
+            # 如果任务正在运行，确保按钮显示"停止任务"
+            if self.model.is_stop_requested():
+                # 如果已请求停止但还未完全停止
+                self.view.set_button_stopping()
+            else:
+                # 正常运行中
+                self.view.set_button_stop()
+        else:
+            # 如果任务未运行，恢复按钮为"开始批量换脸"
+            self.view.set_button_start()
             self._running = False

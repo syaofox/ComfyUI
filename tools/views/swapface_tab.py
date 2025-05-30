@@ -212,3 +212,21 @@ class SwapfaceTab(ttk.Frame):
 
     def get_start_button(self):
         return self.start_button
+        
+    def set_button_start(self):
+        """
+        设置按钮为开始状态
+        """
+        self.start_button.config(text="开始批量换脸", state="normal")
+        
+    def set_button_stop(self):
+        """
+        设置按钮为停止状态
+        """
+        self.start_button.config(text="停止任务", state="normal")
+    
+    def set_button_stopping(self):
+        """
+        设置按钮为正在停止状态
+        """
+        self.start_button.config(text="正在停止...", state="disabled")
