@@ -25,11 +25,17 @@ class SwapfaceModel:
     def start_swapface(self):
         if self._is_running:
             self.message = '任务正在运行中...'
+            self.output_queue.put('任务正在运行中...')
             return
         self._is_running = True
         self.progress = 0
         self.message = '任务启动中...'
-        self.output_queue = queue.Queue()
+        while not self.output_queue.empty():
+            try:
+                self.output_queue.get_nowait()
+            except:
+                pass
+        self.output_queue.put('任务启动中...')
         self._worker_thread = threading.Thread(target=self._run_process, daemon=True)
         self._worker_thread.start()
 
@@ -45,6 +51,7 @@ class SwapfaceModel:
 
     def _run_process(self):
         try:
+            self.output_queue.put('开始处理换脸任务...')
             swapface_hyperlora_core.run(
                 char=self.char,
                 input_path=self.input_path,
@@ -55,8 +62,11 @@ class SwapfaceModel:
             )
             self._is_running = False
             self.message = '任务完成'
+            self.output_queue.put('任务完成')
         except Exception as e:
-            self.message = f'任务异常: {e}'
+            error_msg = f'任务异常: {e}'
+            self.message = error_msg
+            self.output_queue.put(error_msg)
             self._is_running = False
 
     def get_progress(self):
