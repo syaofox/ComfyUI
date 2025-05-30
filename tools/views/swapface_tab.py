@@ -3,6 +3,7 @@ import tkinter.ttk as ttk
 import tkinter.scrolledtext as scrolledtext
 import os
 from tkinterdnd2 import DND_FILES
+from tools.cores.config import config
 
 
 class SwapfaceTab(ttk.Frame):
@@ -40,6 +41,8 @@ class SwapfaceTab(ttk.Frame):
         self.char_combobox.grid(row=row, column=1, sticky='ew')
         # 添加按键释放事件绑定，用于实时过滤选项
         self.char_combobox.bind('<KeyRelease>', self.filter_combobox)
+        # 绑定值变更事件，用于保存配置
+        self.char_var.trace_add("write", self.save_ui_config)
         # 保存完整的选项列表
         self.all_lora_options = []
         
@@ -52,17 +55,23 @@ class SwapfaceTab(ttk.Frame):
         self.input_entry = ttk.Entry(self, textvariable=self.input_path_var, width=30)
         self.input_entry.grid(row=row, column=1, columnspan=2, sticky='ew')
         # 为输入文件夹添加拖放支持（在initialize_dnd中实现）
+        # 添加值变更跟踪
+        self.input_path_var.trace_add("write", self.save_ui_config)
         
         row += 1
         ttk.Label(self, text="输出文件夹").grid(row=row, column=0, sticky='w')
         self.output_entry = ttk.Entry(self, textvariable=self.output_path_var, width=30)
         self.output_entry.grid(row=row, column=1, columnspan=2, sticky='ew')
         # 为输出文件夹添加拖放支持（在initialize_dnd中实现）
+        # 添加值变更跟踪
+        self.output_path_var.trace_add("write", self.save_ui_config)
         
         row += 1
-        ttk.Checkbutton(self, text="重绘头发(repaint_hair)", variable=self.repaint_hair_var).grid(row=row, column=0, columnspan=3, sticky='w')
+        ttk.Checkbutton(self, text="重绘头发(repaint_hair)", variable=self.repaint_hair_var, 
+                       command=self.save_ui_config).grid(row=row, column=0, columnspan=3, sticky='w')
         row += 1
-        ttk.Checkbutton(self, text="出错时复制原图到输出目录", variable=self.copy_on_error_var).grid(row=row, column=0, columnspan=3, sticky='w')
+        ttk.Checkbutton(self, text="出错时复制原图到输出目录", variable=self.copy_on_error_var,
+                       command=self.save_ui_config).grid(row=row, column=0, columnspan=3, sticky='w')
         row += 1
 
         # 进度条
@@ -90,6 +99,9 @@ class SwapfaceTab(ttk.Frame):
         self.columnconfigure(1, weight=1)
         self.columnconfigure(2, weight=0)
         self.rowconfigure(row-2, weight=1)  # 让消息文本区域可扩展
+        
+        # 加载UI配置
+        self.load_ui_config()
         
         # 初始化加载LoRA列表
         self.refresh_lora_list()
@@ -129,6 +141,8 @@ class SwapfaceTab(ttk.Frame):
         # 更新路径变量
         string_var.set(path)
         self.update_message(f"拖入路径: {path}")
+        # 拖放后保存配置
+        self.save_ui_config()
     
     def get_lora_files(self):
         """获取models/hyper_lora/chars目录下的所有.safetensors文件名"""
@@ -254,3 +268,48 @@ class SwapfaceTab(ttk.Frame):
         设置按钮为正在停止状态
         """
         self.start_button.config(text="正在停止...", state="disabled")
+
+    def save_ui_config(self, *args):
+        """
+        保存UI控件状态到配置文件
+        *args 参数是为了兼容trace_add回调
+        """
+        try:
+            # 获取当前控件状态
+            ui_config = {
+                'char': self.char_var.get(),
+                'input_path': self.input_path_var.get(),
+                'output_path': self.output_path_var.get(),
+                'repaint_hair': self.repaint_hair_var.get(),
+                'copy_on_error': self.copy_on_error_var.get()
+            }
+            
+            # 保存到配置
+            config.set_section('swapface', ui_config)
+        except Exception as e:
+            self.update_message(f"保存配置失败: {e}")
+    
+    def load_ui_config(self):
+        """
+        从配置文件加载UI控件状态
+        """
+        try:
+            # 获取配置
+            ui_config = config.get_section('swapface')
+            
+            if ui_config:
+                # 设置控件值
+                if 'char' in ui_config and ui_config['char']:
+                    self.char_var.set(ui_config['char'])
+                if 'input_path' in ui_config:
+                    self.input_path_var.set(ui_config['input_path'])
+                if 'output_path' in ui_config:
+                    self.output_path_var.set(ui_config['output_path'])
+                if 'repaint_hair' in ui_config:
+                    self.repaint_hair_var.set(ui_config['repaint_hair'])
+                if 'copy_on_error' in ui_config:
+                    self.copy_on_error_var.set(ui_config['copy_on_error'])
+                
+                self.update_message("已加载上次的设置")
+        except Exception as e:
+            self.update_message(f"加载配置失败: {e}")
