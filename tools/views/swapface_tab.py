@@ -2,6 +2,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import tkinter.scrolledtext as scrolledtext
 import os
+from tkinterdnd2 import DND_FILES
 
 
 class SwapfaceTab(ttk.Frame):
@@ -44,10 +45,16 @@ class SwapfaceTab(ttk.Frame):
         
         row += 1
         ttk.Label(self, text="输入文件夹").grid(row=row, column=0, sticky='w')
-        ttk.Entry(self, textvariable=self.input_path_var, width=30).grid(row=row, column=1, columnspan=2, sticky='ew')
+        self.input_entry = ttk.Entry(self, textvariable=self.input_path_var, width=30)
+        self.input_entry.grid(row=row, column=1, columnspan=2, sticky='ew')
+        # 为输入文件夹添加拖放支持（在initialize_dnd中实现）
+        
         row += 1
         ttk.Label(self, text="输出文件夹").grid(row=row, column=0, sticky='w')
-        ttk.Entry(self, textvariable=self.output_path_var, width=30).grid(row=row, column=1, columnspan=2, sticky='ew')
+        self.output_entry = ttk.Entry(self, textvariable=self.output_path_var, width=30)
+        self.output_entry.grid(row=row, column=1, columnspan=2, sticky='ew')
+        # 为输出文件夹添加拖放支持（在initialize_dnd中实现）
+        
         row += 1
         ttk.Checkbutton(self, text="重绘头发(repaint_hair)", variable=self.repaint_hair_var).grid(row=row, column=0, columnspan=3, sticky='w')
         row += 1
@@ -82,6 +89,42 @@ class SwapfaceTab(ttk.Frame):
         
         # 初始化加载LoRA列表
         self.refresh_lora_list()
+
+    def initialize_dnd(self, dnd_toplevel):
+        """
+        初始化拖放功能，必须在主窗口完全初始化后调用
+        
+        Args:
+            dnd_toplevel: TkinterDnD.Tk实例（主窗口）
+        """
+        # 为输入框添加拖放绑定
+        self.input_entry.drop_target_register(DND_FILES)
+        self.input_entry.dnd_bind('<<Drop>>', lambda e: self.on_drop(e, self.input_path_var))
+        
+        # 为输出框添加拖放绑定
+        self.output_entry.drop_target_register(DND_FILES)
+        self.output_entry.dnd_bind('<<Drop>>', lambda e: self.on_drop(e, self.output_path_var))
+        
+        self.update_message("已启用文件夹拖放支持")
+    
+    def on_drop(self, event, string_var):
+        """处理文件/文件夹拖放事件"""
+        # 获取拖放的文件路径
+        path = event.data
+        
+        # Windows系统下可能返回带有花括号的路径，如: {D:/path/to/folder}
+        path = path.strip('{}')
+        
+        # 如果是多个文件，只取第一个
+        if ' ' in path:
+            path = path.split(' ')[0]
+        
+        # 移除可能存在的引号
+        path = path.strip('"')
+        
+        # 更新路径变量
+        string_var.set(path)
+        self.update_message(f"拖入路径: {path}")
     
     def get_lora_files(self):
         """获取models/hyper_lora/chars目录下的所有.safetensors文件名"""
