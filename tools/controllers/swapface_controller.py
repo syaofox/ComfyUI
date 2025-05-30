@@ -33,7 +33,8 @@ class SwapfaceController:
             params['char'],
             params['input_path'],
             params['output_path'],
-            params['repaint_hair']
+            params['repaint_hair'],
+            params['copy_on_error']
         )
         self.model.start_swapface()
         self._running = True
