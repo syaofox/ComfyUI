@@ -35,9 +35,13 @@ class SwapfaceTab(ttk.Frame):
         row = 0
         ttk.Label(self, text="人脸LoRA名").grid(row=row, column=0, sticky='w')
         
-        # 使用Combobox替代Entry
-        self.char_combobox = ttk.Combobox(self, textvariable=self.char_var, width=28, state="readonly")
+        # 使用Combobox，设置为可输入状态
+        self.char_combobox = ttk.Combobox(self, textvariable=self.char_var, width=28)
         self.char_combobox.grid(row=row, column=1, sticky='ew')
+        # 添加按键释放事件绑定，用于实时过滤选项
+        self.char_combobox.bind('<KeyRelease>', self.filter_combobox)
+        # 保存完整的选项列表
+        self.all_lora_options = []
         
         # 添加刷新按钮
         refresh_button = ttk.Button(self, text="刷新", width=5, command=self.refresh_lora_list)
@@ -153,6 +157,22 @@ class SwapfaceTab(ttk.Frame):
         
         return lora_files
     
+    def filter_combobox(self, event=None):
+        """根据当前输入过滤Combobox选项"""
+        typed_text = self.char_var.get().lower()
+        if typed_text == '':
+            # 如果输入为空，显示所有选项
+            self.char_combobox['values'] = self.all_lora_options
+        else:
+            # 过滤匹配的选项
+            filtered_options = [opt for opt in self.all_lora_options 
+                               if typed_text in opt.lower()]
+            self.char_combobox['values'] = filtered_options
+            
+            if filtered_options:
+                # 如果有匹配项，打开下拉列表
+                self.char_combobox.event_generate('<Down>')
+    
     def refresh_lora_list(self):
         """刷新LoRA文件列表"""
         current_selection = self.char_var.get()
@@ -164,6 +184,9 @@ class SwapfaceTab(ttk.Frame):
         self.lora_files = self.get_lora_files()
         
         if self.lora_files:
+            # 保存完整的选项列表
+            self.all_lora_options = self.lora_files
+            
             # 设置下拉框选项
             self.char_combobox['values'] = self.lora_files
             
@@ -174,6 +197,7 @@ class SwapfaceTab(ttk.Frame):
                 self.char_combobox.current(0)
                 self.update_message(f"已选择: {self.char_var.get()}")
         else:
+            self.all_lora_options = []
             self.char_var.set('')
             self.update_message("未找到可用的LoRA模型")
 
