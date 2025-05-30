@@ -1,4 +1,5 @@
 import random
+from models.swapface_model import SwapfaceModel
 
 class AppModel:
     """
@@ -8,6 +9,7 @@ class AppModel:
         self._message_for_tab1 = "Initial message for Tab 1"
         self._input_for_tab2 = ""
         self._result_for_tab2 = "No input yet."
+        self.swapface_model = SwapfaceModel()
 
     def get_message_for_tab1(self):
         """获取 Tab 1 的消息"""
