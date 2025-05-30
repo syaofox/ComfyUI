@@ -33,6 +33,9 @@ class MainController:
         self.main_view.add_tab(self.tabview_swapface, "换脸")
         self.main_view.add_tab(self.tab2_view, "脱衣")
 
+        # --- 初始化拖放功能 ---
+        self.tabview_swapface.initialize_dnd(root)
+
         # --- 创建并关联 Tab 的 Controller ---
         self.tab1_controller = SwapfaceController(self.model.swapface_model, self.tabview_swapface)
         self.tab2_controller = takeclothController(self.model, self.tab2_view)

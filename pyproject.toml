@@ -106,6 +106,7 @@ dependencies = [
     "facexlib>=0.3.0",
     "xformers",
     "groundingdino-py @ file:///D:/codes/aivision/ComfyUI/.cache/groundingdino_py-0.4.0-py2.py3-none-any.whl",
+    "tkinterdnd2>=0.4.3",
 ]
 
 [project.urls]
