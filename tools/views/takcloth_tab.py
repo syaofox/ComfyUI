@@ -3,7 +3,7 @@ import tkinter.ttk as ttk
 
 
 
-class TabView2(ttk.Frame):
+class TakeClothTab(ttk.Frame):
     """
     TabView2 类：管理第二个 Tab 的界面
     """

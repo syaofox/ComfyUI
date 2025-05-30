@@ -1,7 +1,7 @@
 from models.app_model import AppModel
 from views.main_view import MainView
 from views.swapface_tab import SwapfaceTab
-from views.tabview2 import TabView2
+from views.takcloth_tab import TakeClothTab
 from controllers.swapface_controller import SwapfaceController
 from controllers.takecloth_controller import takeclothController
 
@@ -27,7 +27,7 @@ class MainController:
 
         # --- 创建 Tab 的 View ---
         self.tabview_swapface = SwapfaceTab(self.main_view.notebook)
-        self.tab2_view = TabView2(self.main_view.notebook)
+        self.tab2_view = TakeClothTab(self.main_view.notebook)
 
         # --- 将 Tab 的 View 添加到 Notebook ---
         self.main_view.add_tab(self.tabview_swapface, "换脸")
