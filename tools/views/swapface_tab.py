@@ -1,6 +1,7 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 import tkinter.scrolledtext as scrolledtext
+import os
 
 
 class SwapfaceTab(ttk.Frame):
@@ -32,43 +33,106 @@ class SwapfaceTab(ttk.Frame):
 
         row = 0
         ttk.Label(self, text="人脸LoRA名(char)").grid(row=row, column=0, sticky='w')
-        ttk.Entry(self, textvariable=self.char_var, width=30).grid(row=row, column=1, sticky='ew')
+        
+        # 使用Combobox替代Entry
+        self.char_combobox = ttk.Combobox(self, textvariable=self.char_var, width=28, state="readonly")
+        self.char_combobox.grid(row=row, column=1, sticky='ew')
+        
+        # 添加刷新按钮
+        refresh_button = ttk.Button(self, text="刷新", width=3, command=self.refresh_lora_list)
+        refresh_button.grid(row=row, column=2, padx=2)
+        
         row += 1
         ttk.Label(self, text="输入文件夹").grid(row=row, column=0, sticky='w')
-        ttk.Entry(self, textvariable=self.input_path_var, width=30).grid(row=row, column=1, sticky='ew')
+        ttk.Entry(self, textvariable=self.input_path_var, width=30).grid(row=row, column=1, columnspan=2, sticky='ew')
         row += 1
         ttk.Label(self, text="输出文件夹").grid(row=row, column=0, sticky='w')
-        ttk.Entry(self, textvariable=self.output_path_var, width=30).grid(row=row, column=1, sticky='ew')
+        ttk.Entry(self, textvariable=self.output_path_var, width=30).grid(row=row, column=1, columnspan=2, sticky='ew')
         row += 1
-        ttk.Checkbutton(self, text="重绘头发(repaint_hair)", variable=self.repaint_hair_var).grid(row=row, column=0, columnspan=2, sticky='w')
+        ttk.Checkbutton(self, text="重绘头发(repaint_hair)", variable=self.repaint_hair_var).grid(row=row, column=0, columnspan=3, sticky='w')
         row += 1
-        ttk.Checkbutton(self, text="出错时复制原图到输出目录", variable=self.copy_on_error_var).grid(row=row, column=0, columnspan=2, sticky='w')
+        ttk.Checkbutton(self, text="出错时复制原图到输出目录", variable=self.copy_on_error_var).grid(row=row, column=0, columnspan=3, sticky='w')
         row += 1
 
         # 进度条
         self.progress_var = tk.IntVar(value=0)
         self.progress_bar = ttk.Progressbar(self, variable=self.progress_var, maximum=100)
-        self.progress_bar.grid(row=row, column=0, columnspan=2, sticky='ew', pady=5)
+        self.progress_bar.grid(row=row, column=0, columnspan=3, sticky='ew', pady=5)
         row += 1
 
         # 消息显示 - 使用滚动文本框替代标签
-        ttk.Label(self, text="处理日志:").grid(row=row, column=0, columnspan=2, sticky='w', pady=(5,0))
+        ttk.Label(self, text="处理日志:").grid(row=row, column=0, columnspan=3, sticky='w', pady=(5,0))
         row += 1
         self.message_text = scrolledtext.ScrolledText(self, width=40, height=10, wrap=tk.WORD)
-        self.message_text.grid(row=row, column=0, columnspan=2, sticky='nsew', pady=5)
+        self.message_text.grid(row=row, column=0, columnspan=3, sticky='nsew', pady=5)
         self.message_text.insert(tk.END, "等待任务...\n")
         self.message_text.configure(state='disabled')  # 设为只读
         row += 1
 
         # 开始按钮
         self.start_button = ttk.Button(self, text="开始批量换脸")
-        self.start_button.grid(row=row, column=0, columnspan=2, pady=10)
+        self.start_button.grid(row=row, column=0, columnspan=3, pady=10)
         row += 1
 
         # 让文本区域随窗口调整大小
         self.columnconfigure(0, weight=0)
         self.columnconfigure(1, weight=1)
+        self.columnconfigure(2, weight=0)
         self.rowconfigure(row-2, weight=1)  # 让消息文本区域可扩展
+        
+        # 初始化加载LoRA列表
+        self.refresh_lora_list()
+    
+    def get_lora_files(self):
+        """获取models/hyper_lora/chars目录下的所有.safetensors文件名"""
+        # 通过相对路径计算绝对路径
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        lora_path = os.path.join(base_dir, "models", "hyper_lora", "chars")
+        
+        lora_files = []
+        try:
+            if os.path.exists(lora_path) and os.path.isdir(lora_path):
+                # 获取所有.safetensors文件，并去掉扩展名
+                all_files = os.listdir(lora_path)
+                lora_files = [os.path.splitext(f)[0] for f in all_files 
+                             if f.lower().endswith('.safetensors')]
+                # 按字母顺序排序
+                lora_files.sort()
+                
+                if lora_files:
+                    self.update_message(f"找到{len(lora_files)}个人脸LoRA模型")
+                else:
+                    self.update_message(f"警告: 在{lora_path}中未找到.safetensors文件")
+            else:
+                self.update_message(f"警告: 目录不存在 - {lora_path}")
+        except Exception as e:
+            self.update_message(f"读取LoRA文件出错: {e}")
+        
+        return lora_files
+    
+    def refresh_lora_list(self):
+        """刷新LoRA文件列表"""
+        current_selection = self.char_var.get()
+        
+        # 清空当前列表
+        self.char_combobox['values'] = []
+        
+        # 获取新的列表
+        self.lora_files = self.get_lora_files()
+        
+        if self.lora_files:
+            # 设置下拉框选项
+            self.char_combobox['values'] = self.lora_files
+            
+            # 尝试保持之前的选择，如果不存在则选择第一个
+            if current_selection in self.lora_files:
+                self.char_var.set(current_selection)
+            else:
+                self.char_combobox.current(0)
+                self.update_message(f"已选择: {self.char_var.get()}")
+        else:
+            self.char_var.set('')
+            self.update_message("未找到可用的LoRA模型")
 
     def get_params(self):
         """获取界面参数"""
