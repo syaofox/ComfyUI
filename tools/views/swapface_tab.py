@@ -22,6 +22,7 @@ class SwapfaceTab(ttk.Frame):
         self.input_path_var = tk.StringVar()
         self.output_path_var = tk.StringVar()
         self.repaint_hair_var = tk.BooleanVar(value=True)
+        self.copy_on_error_var = tk.BooleanVar(value=True)  # 默认开启错误时复制原图
         
         # 用于保存最后一条消息
         self.message_var = tk.StringVar(value="等待任务...")
@@ -40,6 +41,8 @@ class SwapfaceTab(ttk.Frame):
         ttk.Entry(self, textvariable=self.output_path_var, width=30).grid(row=row, column=1, sticky='ew')
         row += 1
         ttk.Checkbutton(self, text="重绘头发(repaint_hair)", variable=self.repaint_hair_var).grid(row=row, column=0, columnspan=2, sticky='w')
+        row += 1
+        ttk.Checkbutton(self, text="出错时复制原图到输出目录", variable=self.copy_on_error_var).grid(row=row, column=0, columnspan=2, sticky='w')
         row += 1
 
         # 进度条
@@ -73,7 +76,8 @@ class SwapfaceTab(ttk.Frame):
             'char': self.char_var.get(),
             'input_path': self.input_path_var.get(),
             'output_path': self.output_path_var.get(),
-            'repaint_hair': self.repaint_hair_var.get()
+            'repaint_hair': self.repaint_hair_var.get(),
+            'copy_on_error': self.copy_on_error_var.get()  # 添加新选项到参数中
         }
 
     def set_progress(self, value):
