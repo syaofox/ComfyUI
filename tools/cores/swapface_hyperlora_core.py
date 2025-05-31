@@ -4,7 +4,7 @@ from comfy_script.runtime import *
 load()
 from comfy_script.runtime.nodes import *
 
-def run(char: str, input_file: str, output_file: str, repaint_hair: bool = True, 
+def run(char: str, input_file: str, output_file: str, sub_body: bool = True, 
         message_callback=None):
     """
     换脸核心逻辑，仅处理单个文件
@@ -13,7 +13,7 @@ def run(char: str, input_file: str, output_file: str, repaint_hair: bool = True,
         char: 人脸LoRA名称
         input_file: 输入文件路径
         output_file: 输出文件路径
-        repaint_hair: 是否重绘头发
+        sub_body: 是否去除身体
         message_callback: 消息回调函数 (message) -> None
     """
     # 确保输出目录存在
@@ -53,14 +53,32 @@ def run(char: str, input_file: str, output_file: str, repaint_hair: bool = True,
             warped_image = FaceMorph(crop_image, image3, 'OUTLINE', 'Landmarks', 'CPU')
             latent2 = VAEEncode(warped_image, vae)
             segmenter = PersonSegmenterLoader()
-            masks = PersonMaskGenerator(segmenter, warped_image, True, False, repaint_hair, False, False, 0.10000000000000002, True)
-            latent2 = SetLatentNoiseMask(latent2, masks)
-            latent2 = KSamplerAdvanced(model, True, 100008, 7, 1.2, 'dpmpp_sde', 'karras', positive, negative, latent2, 3, 7, False)
+            if sub_body:
+                
+                occluder = OccluderLoader('xseg_3')
+                mask, _, _ = GeneratePreciseFaceMask(occluder, warped_image, 0.1, 0, 0, False, 0, False)
+                mask, _ = MaskChange(mask, -2, 0, False, 2, False)
+                segmenter = PersonSegmenterLoader()
+                masks = PersonMaskGenerator(segmenter, warped_image, False, False, False, True, False, 0.10000000000000002, True)
+                mask = MaskComposite(mask, masks, 0, 0, 'subtract')
+                steps = [7,3]
+                print('去除身体, steps:', steps)
+
+            else:       
+                
+                segmenter = PersonSegmenterLoader()
+                mask = PersonMaskGenerator(segmenter, warped_image, True, False, True, False, False, 0.10000000000000002, True)
+                steps = [8,4]
+                print('不去除身体, steps:', steps)
+                
+
+            latent2 = SetLatentNoiseMask(latent2, mask)
+            latent2 = KSamplerAdvanced(model, True, 100008, steps[0], 1.2, 'dpmpp_sde', 'karras', positive, negative, latent2, steps[1], steps[0], False)
             image4 = VAEDecode(latent2, vae)
             image5 = ImageColorMatch(image4, image4, 'RGB', 1, 'auto', 0, None)
             image6, _ = FacePaste(bounding_info, image5, image)
-            image6 = ImageRotate(image6, inverse_rotation_angle, True)  # type: ignore
-            image6 = TrimImageBorders(image6, 10)  # type: ignore
+            image6 = ImageRotate(image6, inverse_rotation_angle, True) # type: ignore
+            image6 = TrimImageBorders(image6, 10) # type: ignore
             images = util.get_images(image6)
             images[0].save(output_file)  # type: ignore
             

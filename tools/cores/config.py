@@ -22,7 +22,7 @@ class Config:
                 'char': '',
                 'input_path': '',
                 'output_path': '',
-                'repaint_hair': True,
+                'sub_body': True,
                 'copy_on_error': True
             }
         }

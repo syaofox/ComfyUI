@@ -10,7 +10,7 @@ class SwapfaceModel:
         self.char = ''
         self.input_path = ''
         self.output_path = ''
-        self.repaint_hair = True
+        self.sub_body = True
         self.copy_on_error = True  # 默认开启错误时复制原图
         self.output_queue = queue.Queue()
         self.progress = 0
@@ -20,11 +20,11 @@ class SwapfaceModel:
         self._current_processing_file = None  # 记录当前正在处理的文件
         self._stop_requested = False  # 标记是否请求停止任务
 
-    def set_params(self, char, input_path, output_path, repaint_hair=True, copy_on_error=True):
+    def set_params(self, char, input_path, output_path, sub_body=True, copy_on_error=True):
         self.char = char
         self.input_path = input_path
         self.output_path = output_path
-        self.repaint_hair = repaint_hair
+        self.sub_body = sub_body
         self.copy_on_error = copy_on_error
 
     def start_swapface(self):
@@ -95,7 +95,7 @@ class SwapfaceModel:
                         char=self.char,
                         input_file=in_path,
                         output_file=out_path,
-                        repaint_hair=self.repaint_hair,
+                        sub_body=self.sub_body,
                         message_callback=self._message_callback
                     )
                 except Exception as e:
