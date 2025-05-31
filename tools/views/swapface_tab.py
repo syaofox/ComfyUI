@@ -24,7 +24,7 @@ class SwapfaceTab(ttk.Frame):
         self.char_var = tk.StringVar()
         self.input_path_var = tk.StringVar()
         self.output_path_var = tk.StringVar()
-        self.repaint_hair_var = tk.BooleanVar(value=True)
+        self.sub_body_var = tk.BooleanVar(value=True)
         self.copy_on_error_var = tk.BooleanVar(value=True)  # 默认开启错误时复制原图
         
         # 用于保存最后一条消息
@@ -67,7 +67,7 @@ class SwapfaceTab(ttk.Frame):
         self.output_path_var.trace_add("write", self.save_ui_config)
         
         row += 1
-        ttk.Checkbutton(self, text="重绘头发(repaint_hair)", variable=self.repaint_hair_var, 
+        ttk.Checkbutton(self, text="不重绘身体(person_segmenter)", variable=self.sub_body_var, 
                        command=self.save_ui_config).grid(row=row, column=0, columnspan=3, sticky='w')
         row += 1
         ttk.Checkbutton(self, text="出错时复制原图到输出目录", variable=self.copy_on_error_var,
@@ -221,7 +221,7 @@ class SwapfaceTab(ttk.Frame):
             'char': self.char_var.get(),
             'input_path': self.input_path_var.get(),
             'output_path': self.output_path_var.get(),
-            'repaint_hair': self.repaint_hair_var.get(),
+            'sub_body': self.sub_body_var.get(),
             'copy_on_error': self.copy_on_error_var.get()  # 添加新选项到参数中
         }
 
@@ -280,7 +280,7 @@ class SwapfaceTab(ttk.Frame):
                 'char': self.char_var.get(),
                 'input_path': self.input_path_var.get(),
                 'output_path': self.output_path_var.get(),
-                'repaint_hair': self.repaint_hair_var.get(),
+                'sub_body': self.sub_body_var.get(),
                 'copy_on_error': self.copy_on_error_var.get()
             }
             
@@ -305,8 +305,8 @@ class SwapfaceTab(ttk.Frame):
                     self.input_path_var.set(ui_config['input_path'])
                 if 'output_path' in ui_config:
                     self.output_path_var.set(ui_config['output_path'])
-                if 'repaint_hair' in ui_config:
-                    self.repaint_hair_var.set(ui_config['repaint_hair'])
+                if 'sub_body' in ui_config:
+                    self.sub_body_var.set(ui_config['sub_body'])
                 if 'copy_on_error' in ui_config:
                     self.copy_on_error_var.set(ui_config['copy_on_error'])
                 
