@@ -114,12 +114,12 @@ class SwapfaceTab(ttk.Frame):
             dnd_toplevel: TkinterDnD.Tk实例（主窗口）
         """
         # 为输入框添加拖放绑定
-        self.input_entry.drop_target_register(DND_FILES)
-        self.input_entry.dnd_bind('<<Drop>>', lambda e: self.on_drop(e, self.input_path_var))
+        self.input_entry.drop_target_register(DND_FILES)  # type: ignore
+        self.input_entry.dnd_bind('<<Drop>>', lambda e: self.on_drop(e, self.input_path_var))  # type: ignore
         
         # 为输出框添加拖放绑定
-        self.output_entry.drop_target_register(DND_FILES)
-        self.output_entry.dnd_bind('<<Drop>>', lambda e: self.on_drop(e, self.output_path_var))
+        self.output_entry.drop_target_register(DND_FILES)  # type: ignore
+        self.output_entry.dnd_bind('<<Drop>>', lambda e: self.on_drop(e, self.output_path_var))  # type: ignore
         
         self.update_message("已启用文件夹拖放支持")
     
