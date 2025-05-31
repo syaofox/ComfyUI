@@ -59,10 +59,10 @@ def run(char: str, input_file: str, output_file: str, repaint_hair: bool = True,
             image4 = VAEDecode(latent2, vae)
             image5 = ImageColorMatch(image4, image4, 'RGB', 1, 'auto', 0, None)
             image6, _ = FacePaste(bounding_info, image5, image)
-            image6 = ImageRotate(image6, inverse_rotation_angle, True)
-            image6 = TrimImageBorders(image6, 10)
+            image6 = ImageRotate(image6, inverse_rotation_angle, True)  # type: ignore
+            image6 = TrimImageBorders(image6, 10)  # type: ignore
             images = util.get_images(image6)
-            images[0].save(output_file)
+            images[0].save(output_file)  # type: ignore
             
         if message_callback:
             message_callback(f'{os.path.basename(input_file)} 处理完成')
