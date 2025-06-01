@@ -3,7 +3,7 @@ import tkinter.ttk as ttk
 import tkinter.scrolledtext as scrolledtext
 import os
 from tkinterdnd2 import DND_FILES
-from tools.cores.config import config
+from cores.config import config
 
 
 class SwapfaceTab(ttk.Frame):
