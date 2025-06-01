@@ -27,6 +27,11 @@ class SwapfaceTab(ttk.Frame):
         self.sub_body_var = tk.BooleanVar(value=True)
         self.copy_on_error_var = tk.BooleanVar(value=True)  # 默认开启错误时复制原图
         
+        # 路径历史记录列表
+        self.input_path_history = []
+        self.output_path_history = []
+        self.max_path_history = 10  # 最多保存10条历史记录
+        
         # 用于保存最后一条消息
         self.message_var = tk.StringVar(value="等待任务...")
         # 消息历史记录
@@ -52,17 +57,17 @@ class SwapfaceTab(ttk.Frame):
         
         row += 1
         ttk.Label(self, text="输入文件夹").grid(row=row, column=0, sticky='w')
-        self.input_entry = ttk.Entry(self, textvariable=self.input_path_var, width=30)
-        self.input_entry.grid(row=row, column=1, columnspan=2, sticky='ew')
-        # 为输入文件夹添加拖放支持（在initialize_dnd中实现）
+        # 将输入文件夹Entry改为Combobox
+        self.input_combobox = ttk.Combobox(self, textvariable=self.input_path_var, width=30)
+        self.input_combobox.grid(row=row, column=1, columnspan=2, sticky='ew')
         # 添加值变更跟踪
         self.input_path_var.trace_add("write", self.save_ui_config)
         
         row += 1
         ttk.Label(self, text="输出文件夹").grid(row=row, column=0, sticky='w')
-        self.output_entry = ttk.Entry(self, textvariable=self.output_path_var, width=30)
-        self.output_entry.grid(row=row, column=1, columnspan=2, sticky='ew')
-        # 为输出文件夹添加拖放支持（在initialize_dnd中实现）
+        # 将输出文件夹Entry改为Combobox
+        self.output_combobox = ttk.Combobox(self, textvariable=self.output_path_var, width=30)
+        self.output_combobox.grid(row=row, column=1, columnspan=2, sticky='ew')
         # 添加值变更跟踪
         self.output_path_var.trace_add("write", self.save_ui_config)
         
@@ -114,12 +119,12 @@ class SwapfaceTab(ttk.Frame):
             dnd_toplevel: TkinterDnD.Tk实例（主窗口）
         """
         # 为输入框添加拖放绑定
-        self.input_entry.drop_target_register(DND_FILES)  # type: ignore
-        self.input_entry.dnd_bind('<<Drop>>', lambda e: self.on_drop(e, self.input_path_var))  # type: ignore
+        self.input_combobox.drop_target_register(DND_FILES)  # type: ignore
+        self.input_combobox.dnd_bind('<<Drop>>', lambda e: self.on_drop(e, self.input_path_var))  # type: ignore
         
         # 为输出框添加拖放绑定
-        self.output_entry.drop_target_register(DND_FILES)  # type: ignore
-        self.output_entry.dnd_bind('<<Drop>>', lambda e: self.on_drop(e, self.output_path_var))  # type: ignore
+        self.output_combobox.drop_target_register(DND_FILES)  # type: ignore
+        self.output_combobox.dnd_bind('<<Drop>>', lambda e: self.on_drop(e, self.output_path_var))  # type: ignore
         
         self.update_message("已启用文件夹拖放支持")
     
@@ -141,8 +146,51 @@ class SwapfaceTab(ttk.Frame):
         # 更新路径变量
         string_var.set(path)
         self.update_message(f"拖入路径: {path}")
+        
+        # 如果是输入路径，更新历史记录
+        if string_var == self.input_path_var:
+            self.update_path_history(path, is_input=True)
+        # 如果是输出路径，更新历史记录
+        elif string_var == self.output_path_var:
+            self.update_path_history(path, is_input=False)
+            
         # 拖放后保存配置
         self.save_ui_config()
+        
+    def update_path_history(self, path, is_input=True):
+        """
+        更新路径历史记录
+        
+        Args:
+            path: 要添加的路径
+            is_input: 是否为输入路径，默认为True
+        """
+        if not path:
+            return
+            
+        # 选择要更新的历史记录列表
+        history_list = self.input_path_history if is_input else self.output_path_history
+        combobox = self.input_combobox if is_input else self.output_combobox
+        
+        # 如果路径已存在于历史记录中，先删除旧记录
+        if path in history_list:
+            history_list.remove(path)
+            
+        # 将新路径添加到历史记录的开头
+        history_list.insert(0, path)
+        
+        # 如果历史记录超过最大限制，删除最旧的记录
+        if len(history_list) > self.max_path_history:
+            history_list = history_list[:self.max_path_history]
+            
+        # 更新对应的历史记录列表
+        if is_input:
+            self.input_path_history = history_list
+        else:
+            self.output_path_history = history_list
+            
+        # 更新Combobox的选项
+        combobox['values'] = history_list
     
     def get_lora_files(self):
         """获取models/hyper_lora/chars目录下的所有.safetensors文件名"""
@@ -217,12 +265,21 @@ class SwapfaceTab(ttk.Frame):
 
     def get_params(self):
         """获取界面参数"""
+        # 调用时更新路径历史记录
+        current_input = self.input_path_var.get()
+        current_output = self.output_path_var.get()
+        
+        if current_input:
+            self.update_path_history(current_input, is_input=True)
+        if current_output:
+            self.update_path_history(current_output, is_input=False)
+            
         return {
             'char': self.char_var.get(),
-            'input_path': self.input_path_var.get(),
-            'output_path': self.output_path_var.get(),
+            'input_path': current_input,
+            'output_path': current_output,
             'sub_body': self.sub_body_var.get(),
-            'copy_on_error': self.copy_on_error_var.get()  # 添加新选项到参数中
+            'copy_on_error': self.copy_on_error_var.get()
         }
 
     def set_progress(self, value):
@@ -281,7 +338,9 @@ class SwapfaceTab(ttk.Frame):
                 'input_path': self.input_path_var.get(),
                 'output_path': self.output_path_var.get(),
                 'sub_body': self.sub_body_var.get(),
-                'copy_on_error': self.copy_on_error_var.get()
+                'copy_on_error': self.copy_on_error_var.get(),
+                'input_path_history': self.input_path_history,
+                'output_path_history': self.output_path_history
             }
             
             # 保存到配置
@@ -309,6 +368,15 @@ class SwapfaceTab(ttk.Frame):
                     self.sub_body_var.set(ui_config['sub_body'])
                 if 'copy_on_error' in ui_config:
                     self.copy_on_error_var.set(ui_config['copy_on_error'])
+                
+                # 加载路径历史记录
+                if 'input_path_history' in ui_config and isinstance(ui_config['input_path_history'], list):
+                    self.input_path_history = ui_config['input_path_history']
+                    self.input_combobox['values'] = self.input_path_history
+                
+                if 'output_path_history' in ui_config and isinstance(ui_config['output_path_history'], list):
+                    self.output_path_history = ui_config['output_path_history']
+                    self.output_combobox['values'] = self.output_path_history
                 
                 self.update_message("已加载上次的设置")
         except Exception as e:

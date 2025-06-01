@@ -79,8 +79,8 @@ def run(char: str, input_file: str, output_file: str, sub_body: bool = True,
             image6, _ = FacePaste(bounding_info, image5, image)
             image6 = ImageRotate(image6, inverse_rotation_angle, True) # type: ignore
             image6 = TrimImageBorders(image6, 10) # type: ignore
-            images = util.get_images(image6)
-            images[0].save(output_file)  # type: ignore
+            images = util.get_images(image6)  # type: ignore
+            images[0].save(output_file) # type: ignore
             
         if message_callback:
             message_callback(f'{os.path.basename(input_file)} 处理完成')
