@@ -1,7 +1,8 @@
-from models.app_model import AppModel
 from views.main_view import MainView
 from views.swapface_tab import SwapfaceTab
 from views.takcloth_tab import TakeClothTab
+from models.swapface_model import SwapfaceModel
+from models.takecloth_model import TakeClothModel
 from controllers.swapface_controller import SwapfaceController
 from controllers.takecloth_controller import takeclothController
 
@@ -22,22 +23,23 @@ class MainController:
         self.root = root
 
         # --- 创建 MVC 组件实例 ---
-        self.model = AppModel()
+        self.swapface_model = SwapfaceModel()
+        self.takecloth_model = TakeClothModel()
         self.main_view = MainView(root)
 
         # --- 创建 Tab 的 View ---
         self.tabview_swapface = SwapfaceTab(self.main_view.notebook)
-        self.tab2_view = TakeClothTab(self.main_view.notebook)
+        self.tabview_takecloth = TakeClothTab(self.main_view.notebook)
 
         # --- 将 Tab 的 View 添加到 Notebook ---
         self.main_view.add_tab(self.tabview_swapface, "换脸")
-        self.main_view.add_tab(self.tab2_view, "脱衣")
+        self.main_view.add_tab(self.tabview_takecloth, "脱衣")
 
         # --- 初始化拖放功能 ---
         self.tabview_swapface.initialize_dnd(root)
 
         # --- 创建并关联 Tab 的 Controller ---
-        self.tab1_controller = SwapfaceController(self.model.swapface_model, self.tabview_swapface)
-        self.tab2_controller = takeclothController(self.model, self.tab2_view)
+        self.swapface_controller = SwapfaceController(self.swapface_model, self.tabview_swapface)
+        self.takecloth_controller = takeclothController(self.takecloth_model, self.tabview_takecloth)
 
         print("MainController: Application initialized.") # 打印日志
