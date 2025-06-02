@@ -26,6 +26,7 @@ class SwapfaceTab(ttk.Frame):
         self.output_path_var = tk.StringVar()
         self.sub_body_var = tk.BooleanVar(value=True)
         self.copy_on_error_var = tk.BooleanVar(value=True)  # 默认开启错误时复制原图
+        self.auto_suffix_var = tk.BooleanVar(value=True)  # 默认开启自动添加后缀
         
         # 路径历史记录列表
         self.input_path_history = []
@@ -76,6 +77,9 @@ class SwapfaceTab(ttk.Frame):
                        command=self.save_ui_config).grid(row=row, column=0, columnspan=3, sticky='w')
         row += 1
         ttk.Checkbutton(self, text="出错时复制原图到输出目录", variable=self.copy_on_error_var,
+                       command=self.save_ui_config).grid(row=row, column=0, columnspan=3, sticky='w')
+        row += 1
+        ttk.Checkbutton(self, text="自动为输出路径添加角色名和输入目录后缀", variable=self.auto_suffix_var,
                        command=self.save_ui_config).grid(row=row, column=0, columnspan=3, sticky='w')
         row += 1
 
@@ -274,19 +278,33 @@ class SwapfaceTab(ttk.Frame):
         if current_output:
             self.update_path_history(current_output, is_input=False)
 
+        # 处理输出路径后缀
+        output_path = current_output
+        if self.auto_suffix_var.get() and current_output and self.char_var.get():
+            # 获取输入路径的目录名
+            input_dirname = os.path.basename(os.path.normpath(current_input)) if current_input else ""
+            # 组合输出路径: 输出基础路径 + 角色名 + 输入目录名
+            char_name = os.path.normpath(self.char_var.get())
+
+            if input_dirname:                
+                output_path = os.path.join(current_output, char_name, input_dirname)
+            else:
+                output_path = os.path.join(current_output, char_name)
+            
+            self.update_message(f"自动设置输出路径: {output_path}")
+
         self.save_ui_config()
             
         return {
             'char': self.char_var.get(),
             'input_path': current_input,
-            'output_path': current_output,
+            'output_path': output_path,
+            'original_output_path': current_output,  # 保存原始输出路径
             'sub_body': self.sub_body_var.get(),
-            'copy_on_error': self.copy_on_error_var.get()
+            'copy_on_error': self.copy_on_error_var.get(),
+            'auto_suffix': self.auto_suffix_var.get()
         }
     
-        
-    
-
     def set_progress(self, value):
         self.progress_var.set(value)
 
@@ -344,6 +362,7 @@ class SwapfaceTab(ttk.Frame):
                 'output_path': self.output_path_var.get(),
                 'sub_body': self.sub_body_var.get(),
                 'copy_on_error': self.copy_on_error_var.get(),
+                'auto_suffix': self.auto_suffix_var.get(),
                 'input_path_history': self.input_path_history,
                 'output_path_history': self.output_path_history
             }
@@ -373,6 +392,8 @@ class SwapfaceTab(ttk.Frame):
                     self.sub_body_var.set(ui_config['sub_body'])
                 if 'copy_on_error' in ui_config:
                     self.copy_on_error_var.set(ui_config['copy_on_error'])
+                if 'auto_suffix' in ui_config:
+                    self.auto_suffix_var.set(ui_config['auto_suffix'])
                 
                 # 加载路径历史记录
                 if 'input_path_history' in ui_config and isinstance(ui_config['input_path_history'], list):
