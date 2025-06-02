@@ -273,6 +273,8 @@ class SwapfaceTab(ttk.Frame):
             self.update_path_history(current_input, is_input=True)
         if current_output:
             self.update_path_history(current_output, is_input=False)
+
+        self.save_ui_config()
             
         return {
             'char': self.char_var.get(),
@@ -281,6 +283,9 @@ class SwapfaceTab(ttk.Frame):
             'sub_body': self.sub_body_var.get(),
             'copy_on_error': self.copy_on_error_var.get()
         }
+    
+        
+    
 
     def set_progress(self, value):
         self.progress_var.set(value)
