@@ -4,7 +4,7 @@ from views.takcloth_tab import TakeClothTab
 from models.swapface_model import SwapfaceModel
 from models.takecloth_model import TakeClothModel
 from controllers.swapface_controller import SwapfaceController
-from controllers.takecloth_controller import takeclothController
+from controllers.takecloth_controller import TakeClothController
 
 
 
@@ -37,9 +37,10 @@ class MainController:
 
         # --- 初始化拖放功能 ---
         self.tabview_swapface.initialize_dnd(root)
+        self.tabview_takecloth.initialize_dnd(root)  # 添加脱衣Tab的拖放支持
 
         # --- 创建并关联 Tab 的 Controller ---
         self.swapface_controller = SwapfaceController(self.swapface_model, self.tabview_swapface)
-        self.takecloth_controller = takeclothController(self.takecloth_model, self.tabview_takecloth)
+        self.takecloth_controller = TakeClothController(self.tabview_takecloth)  # 修改为直接传入tab视图
 
         print("MainController: Application initialized.") # 打印日志
