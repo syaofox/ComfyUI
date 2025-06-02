@@ -6,13 +6,11 @@ from comfy_script.runtime.nodes import *
 
 def run(input_file: str, output_file: str, message_callback=None):
     """
-    换脸核心逻辑，仅处理单个文件
+    脱衣服核心逻辑，仅处理单个文件
     
     Args:
-        char: 人脸LoRA名称
         input_file: 输入文件路径
         output_file: 输出文件路径
-        sub_body: 是否去除身体
         message_callback: 消息回调函数 (message) -> None
     """
     # 确保输出目录存在
