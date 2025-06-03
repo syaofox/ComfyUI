@@ -4,7 +4,7 @@ from comfy_script.runtime import *
 load()
 from comfy_script.runtime.nodes import *
 
-def run(char: str, input_file: str, output_file: str, sub_body: bool = True, 
+def run(char: str, input_file: str, output_file: str, sub_body: bool = True, expression_edit: bool = False,
         message_callback=None):
     """
     换脸核心逻辑，仅处理单个文件
@@ -76,12 +76,22 @@ def run(char: str, input_file: str, output_file: str, sub_body: bool = True,
             latent2 = KSamplerAdvanced(model, True, 100008, steps[0], 1.2, 'dpmpp_sde', 'karras', positive, negative, latent2, steps[1], steps[0], False)
             image4 = VAEDecode(latent2, vae)
             image5 = SFImageColorMatch(image4, image4, 'RGB', 1, 'auto', 0, None)
+
+            if expression_edit:
+                image6, _, _ = ExpressionEditor(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0.5000000000000001, 'OnlyExpression', 1.7, image5, None, crop_image, None)
+                print('表情编辑')
+            else:
+                image6 = image5
+
             image6, _ = SFFacePaste(bounding_info, image5, image)
             image6 = SFImageRotate(image6, inverse_rotation_angle, True) # type: ignore
             image6 = SFTrimImageBorders(image6, 10) # type: ignore
             images = util.get_images(image6)  # type: ignore
             images[0].save(output_file) # type: ignore
-            
+
+
+
+                        
         if message_callback:
             message_callback(f'{os.path.basename(input_file)} 处理完成')
             

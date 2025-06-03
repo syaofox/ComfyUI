@@ -25,6 +25,7 @@ class SwapfaceTab(ttk.Frame):
         self.input_path_var = tk.StringVar()
         self.output_path_var = tk.StringVar()
         self.sub_body_var = tk.BooleanVar(value=True)
+        self.expression_edit_var = tk.BooleanVar(value=False)
         self.copy_on_error_var = tk.BooleanVar(value=True)  # 默认开启错误时复制原图
         self.auto_suffix_var = tk.BooleanVar(value=True)  # 默认开启自动添加后缀
         
@@ -74,6 +75,9 @@ class SwapfaceTab(ttk.Frame):
         
         row += 1
         ttk.Checkbutton(self, text="不重绘身体(person_segmenter)", variable=self.sub_body_var, 
+                       command=self.save_ui_config).grid(row=row, column=0, columnspan=3, sticky='w')
+        row += 1
+        ttk.Checkbutton(self, text="表情编辑", variable=self.expression_edit_var,
                        command=self.save_ui_config).grid(row=row, column=0, columnspan=3, sticky='w')
         row += 1
         ttk.Checkbutton(self, text="出错时复制原图到输出目录", variable=self.copy_on_error_var,
@@ -301,6 +305,7 @@ class SwapfaceTab(ttk.Frame):
             'output_path': output_path,
             'original_output_path': current_output,  # 保存原始输出路径
             'sub_body': self.sub_body_var.get(),
+            'expression_edit': self.expression_edit_var.get(),
             'copy_on_error': self.copy_on_error_var.get(),
             'auto_suffix': self.auto_suffix_var.get()
         }
@@ -361,6 +366,7 @@ class SwapfaceTab(ttk.Frame):
                 'input_path': self.input_path_var.get(),
                 'output_path': self.output_path_var.get(),
                 'sub_body': self.sub_body_var.get(),
+                'expression_edit': self.expression_edit_var.get(),
                 'copy_on_error': self.copy_on_error_var.get(),
                 'auto_suffix': self.auto_suffix_var.get(),
                 'input_path_history': self.input_path_history,
@@ -390,6 +396,8 @@ class SwapfaceTab(ttk.Frame):
                     self.output_path_var.set(ui_config['output_path'])
                 if 'sub_body' in ui_config:
                     self.sub_body_var.set(ui_config['sub_body'])
+                if 'expression_edit' in ui_config:
+                    self.expression_edit_var.set(ui_config['expression_edit'])
                 if 'copy_on_error' in ui_config:
                     self.copy_on_error_var.set(ui_config['copy_on_error'])
                 if 'auto_suffix' in ui_config:

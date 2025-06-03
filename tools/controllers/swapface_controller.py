@@ -40,6 +40,7 @@ class SwapfaceController:
                 params['input_path'],
                 params['output_path'],
                 params['sub_body'],
+                params['expression_edit'],
                 params['copy_on_error']
             )
             self.model.start_swapface()
