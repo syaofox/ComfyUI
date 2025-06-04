@@ -49,7 +49,7 @@ dependencies = [
     "numba>=0.61.2",
     "numpy>=1.20.0",
     "omegaconf>=2.3.0",
-    "onnx>=1.10.0",
+    "onnx!=1.16.2",
     "onnx2torch>=1.5.15",
     "onnxruntime>=1.9.0",
     "onnxruntime-gpu>=1.15.0",
@@ -107,6 +107,7 @@ dependencies = [
     "xformers",
     "groundingdino-py @ file:///D:/codes/aivision/ComfyUI/.cache/groundingdino_py-0.4.0-py2.py3-none-any.whl",
     "tkinterdnd2>=0.4.3",
+    "tensorrt>=10.0.1",
 ]
 
 [project.urls]
