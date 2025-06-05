@@ -22,7 +22,6 @@ class Config:
                 'char': '',
                 'input_path': '',
                 'output_path': '',
-                'sub_body': True,
                 'copy_on_error': True
             }
         }
