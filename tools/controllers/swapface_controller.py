@@ -39,7 +39,6 @@ class SwapfaceController:
                 params['char'],
                 params['input_path'],
                 params['output_path'],
-                params['sub_body'],
                 params['expression_edit'],
                 params['copy_on_error']
             )

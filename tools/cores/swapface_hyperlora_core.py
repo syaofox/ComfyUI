@@ -103,7 +103,7 @@ def postprocess_image(image, image_data, output_file):
     images[0].save(output_file) # type: ignore
 
 
-def run_v2(char: str, input_file: str, output_file: str, sub_body: bool = True, expression_edit: bool = False,
+def run_v2(char: str, input_file: str, output_file: str,  expression_edit: bool = False,
         message_callback=None):
     """
     换脸核心逻辑，仅处理单个文件
@@ -112,7 +112,6 @@ def run_v2(char: str, input_file: str, output_file: str, sub_body: bool = True, 
         char: 人脸LoRA名称
         input_file: 输入文件路径
         output_file: 输出文件路径
-        sub_body: 是否去除身体
         expression_edit: 是否编辑表情
         message_callback: 消息回调函数 (message) -> None
     """
