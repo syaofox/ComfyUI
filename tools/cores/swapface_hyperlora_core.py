@@ -6,9 +6,8 @@ from comfy_script.runtime.nodes import *
 
 def load_models():
     """加载所需的模型"""
-    analysis_models = SFFaceAnalysisModels('insightface', 'CPU')
+    insightface_model, analysis_models = SFFaceAnalysisModels('antelopev2', 'CUDA')
     instantid = InstantIDModelLoader('ip-adapter.bin')
-    faceanalysis = InstantIDFaceAnalysis('CUDA')
     control_net = ControlNetLoader(r'instantid\diffusion_pytorch_model.safetensors')
     occluder = SFOccluderLoader('xseg_3')
     control_net2 = ControlNetLoader(r'xinsir\controlnet-union-sdxl-1.0_promax.safetensors')
@@ -16,8 +15,8 @@ def load_models():
     
     return {
         'analysis_models': analysis_models,
+        'insightface_model': insightface_model,
         'instantid': instantid,
-        'faceanalysis': faceanalysis,
         'control_net': control_net,
         'occluder': occluder,
         'control_net2': control_net2
@@ -53,8 +52,8 @@ def preprocess_image(models, input_file):
 
 def setup_conditioning(clip):
     """设置正向和负向提示词"""
-    conditioning = BNKCLIPTextEncodeAdvanced('fcsks fxhks fhyks,a beautiful girl, Look at the camera, Real photography, 4K, RAW photo, close-up, exquisite makeup, delicate skin,  real photos, best picture quality, high details', clip, 'length+mean', 'A1111')
-    conditioning2 = BNKCLIPTextEncodeAdvanced('lowres, bad anatomy, bad hands, text, error, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, bad feet', clip, 'length+mean', 'A1111')
+    conditioning = SFAdvancedCLIPTextEncode('fcsks fxhks fhyks,a beautiful girl, Look at the camera, Real photography, 4K, RAW photo, close-up, exquisite makeup, delicate skin,  real photos, best picture quality, high details', clip, 'length+mean', 'A1111')
+    conditioning2 = SFAdvancedCLIPTextEncode('lowres, bad anatomy, bad hands, text, error, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, bad feet', clip, 'length+mean', 'A1111')
     
     return conditioning, conditioning2
 
@@ -144,7 +143,7 @@ def run_v2(char: str, input_file: str, output_file: str,  expression_edit: bool 
             
             # 5. 应用InstantID
             model, positive, negative = ApplyInstantIDAdvanced(
-                models['instantid'], models['faceanalysis'], models['control_net'], 
+                models['instantid'], models['insightface_model'], models['control_net'], 
                 char_image, model, positive, negative, 0, 0.6000000000000001, 
                 0, 1, 0, 'average', image_data['crop_image'], None
             )
