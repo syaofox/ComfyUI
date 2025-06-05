@@ -92,7 +92,7 @@ class SwapfaceModel:
                 # 处理单个图片的逻辑
                 try:
                     # 直接调用核心处理逻辑，传入单个文件路径
-                    swapface_hyperlora_core.run(
+                    swapface_hyperlora_core.run_v2(
                         char=self.char,
                         input_file=in_path,
                         output_file=out_path,
