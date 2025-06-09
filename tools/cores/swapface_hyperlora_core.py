@@ -53,7 +53,7 @@ def preprocess_image(models, input_file):
 def setup_conditioning(clip):
     """设置正向和负向提示词"""
     conditioning = SFAdvancedCLIPTextEncode('fcsks fxhks fhyks,a beautiful girl,close up, Look at the camera,photo realistic, high details', clip, 'length+mean', 'A1111')
-    conditioning2 = SFAdvancedCLIPTextEncode('Extra fingers,lowres, bad anatomy, bad hands, text, error, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, bad feet', clip, 'length+mean', 'A1111')
+    conditioning2 = SFAdvancedCLIPTextEncode('freckles,Extra fingers,lowres, bad anatomy, bad hands, text, error, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, bad feet', clip, 'length+mean', 'A1111')
     
     return conditioning, conditioning2
 
