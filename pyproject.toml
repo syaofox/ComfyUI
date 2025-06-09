@@ -20,7 +20,7 @@ dependencies = [
     "comfyui-ib-customnodes>=0.2.1",
     "comfyui-tooling-nodes>=0.1.0",
     "comfyui-workflow-templates==0.1.22",
-    "diffusers>=0.26.3",
+    "diffusers==0.32.2",
     "dill>=0.4.0",
     "dlib>=19.24.8",
     "dynaconf>=3.2.11",
@@ -47,7 +47,7 @@ dependencies = [
     "nest-asyncio~=1.0,>=1.5.9",
     "networkx[default]~=3.0",
     "numba>=0.61.2",
-    "numpy>=1.20.0",
+    "numpy==1.26.4",
     "omegaconf>=2.3.0",
     "onnx!=1.16.2",
     "onnx2torch>=1.5.15",
@@ -89,7 +89,7 @@ dependencies = [
     "torchsde>=0.2.6",
     "torchvision>=0.15.0",
     "tqdm>=4.65.0",
-    "transformers>=4.28.1",
+    "transformers==4.45.0",
     "transparent-background>=1.2.4",
     "trimesh[easy]>=4.6.8",
     "typer>=0.15.3",
@@ -108,6 +108,7 @@ dependencies = [
     "groundingdino-py @ file:///D:/codes/aivision/ComfyUI/.cache/groundingdino_py-0.4.0-py2.py3-none-any.whl",
     "tkinterdnd2>=0.4.3",
     "tensorrt>=10.0.1",
+    "fastapi<0.113.0",
 ]
 
 [project.urls]
