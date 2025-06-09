@@ -9,17 +9,14 @@ def load_models():
     insightface_model, analysis_models = SFFaceAnalysisModels('antelopev2', 'CUDA')
     instantid = InstantIDModelLoader('ip-adapter.bin')
     control_net = ControlNetLoader(r'instantid\diffusion_pytorch_model.safetensors')
-    control_net_union = ControlNetLoader(r'xinsir\controlnet-union-sdxl-1.0_promax.safetensors')
-    control_net_canny = SetUnionControlNetType(control_net_union, 'canny/lineart/anime_lineart/mlsd')
-    control_net_depth = SetUnionControlNetType(control_net_union, 'depth')
+    occluder = SFOccluderLoader('xseg_3')
     
     return {
         'analysis_models': analysis_models,
         'insightface_model': insightface_model,
         'instantid': instantid,
         'control_net': control_net,
-        'control_net_canny': control_net_canny,
-        'control_net_depth': control_net_depth
+        'occluder': occluder
     }
 
 
@@ -61,24 +58,29 @@ def setup_conditioning(clip):
 def generate_face(models, image_data, model, vae, positive, negative):
     """生成人脸"""
     crop_image = image_data['crop_image']
-    
-    # Get image size for preprocessors
-    _, _, _, min_dimension, _ = SFGetImageSize(crop_image)
-    
-    
-    # Canny ControlNet
-    canny_image = PyraCannyPreprocessor(crop_image, 64, 128, min_dimension) # type: ignore
-    positive, negative = ControlNetApplyAdvanced(positive, negative, models['control_net_canny'], canny_image, 0.9000000000000001, 0.15000000000000002, 0.4500000000000001, vae) # type: ignore
+    analysis_models = models['analysis_models']
+    occluder = models['occluder']
 
-    # Depth ControlNet
-    depth_image = DepthAnythingPreprocessor(crop_image, 'depth_anything_vitl14.pth', min_dimension) # type: ignore
-    positive, negative = ControlNetApplyAdvanced(positive, negative, models['control_net_depth'], depth_image, 0.7000000000000002, 0.15000000000000002, 0.5000000000000001, vae) # type: ignore
-    
-    # Sampling
     latent = VAEEncode(crop_image, vae)
-    latent = KSamplerAdvanced(model, True, 100003, 7, 1.2, 'dpmpp_sde', 'karras', positive, negative, latent, 3, 7, False)
+    latent = KSamplerAdvanced(model, True, 9000, 4, 2, 'dpmpp_sde', 'karras', positive, negative, latent, 1, 3, False)
+    image3 = VAEDecode(latent, vae)
     
-    return VAEDecode(latent, vae)
+    warped_image = SFFaceMorph(crop_image, image3, 'ALL', 'Landmarks', 'CUDA')
+    warped_image2 = SFFaceMorph(crop_image, image3, 'OUTLINE', 'Landmarks', 'CUDA')
+    
+    mask_params = SFMaskParams(0, 0.010000000000000002, False, 8, False)
+    image4, _ = SFFaceWarp(analysis_models, warped_image, warped_image2, 'main features', None, None, mask_params, False)
+    
+    latent2 = VAEEncode(image4, vae)
+    
+    mask_params2 = SFMaskParams(0, 0.010000000000000002, False, 12, False)
+    mask, _, _ = SFGeneratePreciseFaceMask(occluder, image4, 0.1, mask_params2)
+    latent2 = SetLatentNoiseMask(latent2, mask)
+    
+    latent2 = KSamplerAdvanced(model, True, 100007, 9, 1, 'dpmpp_sde', 'karras', positive, negative, latent2, 5, 100, False)
+    image5 = VAEDecode(latent2, vae)
+    
+    return image5
 
 
 def postprocess_image(image, image_data, output_file):
@@ -121,7 +123,7 @@ def run_v2(char: str, input_file: str, output_file: str,  expression_edit: bool 
         with Workflow():
             # 1. 加载模型
             models = load_models()
-            
+                        
             # 2. 加载角色和基础模型
             model, clip, vae, char_image = load_character_and_base_models(char)
             
