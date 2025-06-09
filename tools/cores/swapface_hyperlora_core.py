@@ -9,17 +9,17 @@ def load_models():
     insightface_model, analysis_models = SFFaceAnalysisModels('antelopev2', 'CUDA')
     instantid = InstantIDModelLoader('ip-adapter.bin')
     control_net = ControlNetLoader(r'instantid\diffusion_pytorch_model.safetensors')
-    occluder = SFOccluderLoader('xseg_3')
-    control_net2 = ControlNetLoader(r'xinsir\controlnet-union-sdxl-1.0_promax.safetensors')
-    control_net2 = SetUnionControlNetType(control_net2, 'canny/lineart/anime_lineart/mlsd')
+    control_net_union = ControlNetLoader(r'xinsir\controlnet-union-sdxl-1.0_promax.safetensors')
+    control_net_canny = SetUnionControlNetType(control_net_union, 'canny/lineart/anime_lineart/mlsd')
+    control_net_depth = SetUnionControlNetType(control_net_union, 'depth')
     
     return {
         'analysis_models': analysis_models,
         'insightface_model': insightface_model,
         'instantid': instantid,
         'control_net': control_net,
-        'occluder': occluder,
-        'control_net2': control_net2
+        'control_net_canny': control_net_canny,
+        'control_net_depth': control_net_depth
     }
 
 
@@ -36,9 +36,9 @@ def load_character_and_base_models(char):
 def preprocess_image(models, input_file):
     """预处理输入图像"""
     image, _ = LoadImageFromPath(input_file)
-    image, _, _, _, _ = SFImageScalerByPixels(image, 'lanczos', 2.0000000000000004, True, None)
-    aligned_image, _, inverse_rotation_angle = SFAlignImageByFace(models['analysis_models'], image, True, False, None)
-    bounding_infos, crop_images, _, = SFFaceCutout(models['analysis_models'], aligned_image, 0, 0.4000000000000001, 'sdxl', 1, 42, 0, 24, False)
+    image, _, _, _, _ = SFImageScaleBySpecifiedSide(image, 'lanczos', 1920, False, True, None)
+    aligned_image, rotation_info = SFAlignImageByFace(models['analysis_models'], image, True, False, 10, False, None)
+    bounding_infos, crop_images, _, = SFFaceCutout(models['analysis_models'], aligned_image, 0, 0.5000000000000001, 'sdxl', 1, 0, 0.10000000000000002, 0, 0.05000000000000001, False)
     _, _, _, _, crop_image, bounding_info = SFExtractBoundingBox(bounding_infos, crop_images, 0)
     
     return {
@@ -46,59 +46,49 @@ def preprocess_image(models, input_file):
         'aligned_image': aligned_image,
         'crop_image': crop_image,
         'bounding_info': bounding_info,
-        'inverse_rotation_angle': inverse_rotation_angle
+        'rotation_info': rotation_info
     }
 
 
 def setup_conditioning(clip):
     """设置正向和负向提示词"""
-    conditioning = SFAdvancedCLIPTextEncode('fcsks fxhks fhyks,a beautiful girl, Look at the camera, Real photography, 4K, RAW photo, close-up, exquisite makeup, delicate skin,  real photos, best picture quality, high details', clip, 'length+mean', 'A1111')
-    conditioning2 = SFAdvancedCLIPTextEncode('lowres, bad anatomy, bad hands, text, error, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, bad feet', clip, 'length+mean', 'A1111')
+    conditioning = SFAdvancedCLIPTextEncode('fcsks fxhks fhyks,a beautiful girl,close up, Look at the camera,photo realistic, high details', clip, 'length+mean', 'A1111')
+    conditioning2 = SFAdvancedCLIPTextEncode('Extra fingers,lowres, bad anatomy, bad hands, text, error, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, bad feet', clip, 'length+mean', 'A1111')
     
     return conditioning, conditioning2
 
 
 def generate_face(models, image_data, model, vae, positive, negative):
     """生成人脸"""
-    model2 = DifferentialDiffusion(model)
+    crop_image = image_data['crop_image']
     
-    # 第一次采样
-    latent = VAEEncode(image_data['crop_image'], vae)
-    latent = KSamplerAdvanced(model, True, 100006, 4, 1.4000000000000001, 'dpmpp_sde', 'karras', positive, negative, latent, 1, 2, False)
-    image3 = VAEDecode(latent, vae)
+    # Get image size for preprocessors
+    _, _, _, min_dimension, _ = SFGetImageSize(crop_image)
     
-    # 生成遮罩
-    _, inverted_mask, _ = SFGeneratePreciseFaceMask(models['occluder'], image_data['crop_image'], 0.1, None)
-    inverted_mask, _ = SFMaskChange(inverted_mask, 0, 0, False, 4, False)
     
-    # 合成图像
-    image4 = ImageCompositeMasked(image3, image_data['crop_image'], 0, 0, False, inverted_mask)
+    # Canny ControlNet
+    canny_image = PyraCannyPreprocessor(crop_image, 64, 128, min_dimension) # type: ignore
+    positive, negative = ControlNetApplyAdvanced(positive, negative, models['control_net_canny'], canny_image, 0.9000000000000001, 0.15000000000000002, 0.4500000000000001, vae) # type: ignore
+
+    # Depth ControlNet
+    depth_image = DepthAnythingPreprocessor(crop_image, 'depth_anything_vitl14.pth', min_dimension) # type: ignore
+    positive, negative = ControlNetApplyAdvanced(positive, negative, models['control_net_depth'], depth_image, 0.7000000000000002, 0.15000000000000002, 0.5000000000000001, vae) # type: ignore
     
-    # 边缘检测
-    image5 = Canny(image4, 0.10000000000000002, 0.20000000000000004)
+    # Sampling
+    latent = VAEEncode(crop_image, vae)
+    latent = KSamplerAdvanced(model, True, 100003, 7, 1.2, 'dpmpp_sde', 'karras', positive, negative, latent, 3, 7, False)
     
-    # 应用ControlNet
-    positive2, negative2 = ControlNetApplyAdvanced(positive, negative, models['control_net2'], image5, 0.8000000000000002, 0, 1, vae)
-    
-    # 第二次采样
-    latent2 = VAEEncode(image_data['crop_image'], vae)
-    mask_params = SFMaskParams(0, 0.07, False, 15, False)
-    mask, _, _ = SFGeneratePreciseFaceMask(models['occluder'], image_data['crop_image'], 0.1, mask_params)
-    latent2 = SetLatentNoiseMask(latent2, mask)
-    latent2 = KSamplerAdvanced(model2, True, 100009, 7, 1.2, 'dpmpp_sde', 'karras', positive2, negative2, latent2, 3, 7, False)
-    
-    return VAEDecode(latent2, vae)
+    return VAEDecode(latent, vae)
 
 
 def postprocess_image(image, image_data, output_file):
     """后处理图像并保存"""
-    image7 = SFImageColorMatch(image, image, 'LAB', 1, 'auto', 0, None)
-    image8, _ = SFFacePaste(image_data['bounding_info'], image7, image_data['aligned_image'])
-    image8 = SFImageRotate(image8, image_data['inverse_rotation_angle'], True)
-    image8 = SFTrimImageBorders(image8, 10)
+    image = SFImageColorMatch(image, image_data['crop_image'], 'RGB', 1, 'auto', 0, None)
+    image, _ = SFFacePaste(image_data['bounding_info'], image, image_data['aligned_image'])
+    image = SFRestoreRotatedImage(image, image_data['rotation_info'])
     
     # 保存图像
-    images = util.get_images(image8)
+    images = util.get_images(image)
     images[0].save(output_file) # type: ignore
 
 
