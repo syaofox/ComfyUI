@@ -67,25 +67,42 @@ class SwapfaceModel:
     def _run_process(self):
         try:
             self.output_queue.put('开始处理换脸任务...')
-            # 获取文件列表
-            file_list = [f for f in os.listdir(self.input_path) 
-                         if f.lower().endswith(('.jpg', '.png', '.jpeg', '.webp'))]
+            # 递归获取所有文件列表（包含子文件夹）
+            file_list = []
+            for root, _, files in os.walk(self.input_path):
+                for file in files:
+                    if file.lower().endswith(('.jpg', '.png', '.jpeg', '.webp')):
+                        # 获取相对于输入路径的相对路径
+                        rel_path = os.path.relpath(root, self.input_path)
+                        if rel_path == '.':
+                            file_list.append((file, file))  # (源文件相对路径, 目标文件相对路径)
+                        else:
+                            file_list.append((
+                                os.path.join(rel_path, file),  # 源文件相对路径
+                                os.path.join(rel_path, file)   # 目标文件相对路径
+                            ))
             total = len(file_list)
+            # 确保输出根目录存在
             os.makedirs(self.output_path, exist_ok=True)
             
-            for idx, file in enumerate(file_list):
+            for idx, (rel_src, rel_dst) in enumerate(file_list):
                 # 检查是否请求停止
                 if self._stop_requested:
                     self.message = '任务已被用户停止'
                     self.output_queue.put('任务已被用户停止')
                     break
                 
-                in_path = os.path.join(self.input_path, file)
-                out_path = os.path.join(self.output_path, file)
+                # 构建完整的输入输出路径
+                in_path = os.path.join(self.input_path, rel_src)
+                out_dir = os.path.dirname(os.path.join(self.output_path, rel_dst))
+                out_path = os.path.join(self.output_path, rel_dst)
+                
+                # 确保输出子目录存在
+                os.makedirs(out_dir, exist_ok=True)
                 
                 # 记录当前处理的文件
                 self._current_processing_file = in_path
-                self.output_queue.put(f'开始处理文件: {file}')
+                self.output_queue.put(f'开始处理文件: {rel_src}')
                 
                 # 处理单个图片的逻辑
                 try:
@@ -98,7 +115,7 @@ class SwapfaceModel:
                         message_callback=self._message_callback
                     )
                 except Exception as e:
-                    error_msg = f'{file} 处理失败: {e}'
+                    error_msg = f'{rel_src} 处理失败: {e}'
                     self.message = error_msg
                     self.output_queue.put(error_msg)
                     
@@ -106,7 +123,7 @@ class SwapfaceModel:
                     if self.copy_on_error:
                         try:
                             shutil.copy2(in_path, out_path)
-                            self.output_queue.put(f'处理失败，已复制原图 {file} 到输出目录')
+                            self.output_queue.put(f'处理失败，已复制原图 {rel_src} 到输出目录')
                         except Exception as copy_err:
                             self.output_queue.put(f'复制原图失败: {copy_err}')
                 
