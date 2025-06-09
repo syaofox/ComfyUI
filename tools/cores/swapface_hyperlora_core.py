@@ -1,7 +1,7 @@
 import os
-from comfy_script.runtime import *
+from comfy_script.runtime import * # type: ignore
 load()
-from comfy_script.runtime.nodes import *
+from comfy_script.runtime.nodes import * # type: ignore
 
 
 def load_models():
