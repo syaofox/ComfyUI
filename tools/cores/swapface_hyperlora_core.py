@@ -9,14 +9,16 @@ def load_models():
     insightface_model, analysis_models = SFFaceAnalysisModels('antelopev2', 'CUDA')
     instantid = InstantIDModelLoader('ip-adapter.bin')
     control_net = ControlNetLoader(r'instantid\diffusion_pytorch_model.safetensors')
-    occluder = SFOccluderLoader('xseg_3')
+    # segmenter = SFPersonSegmenterLoader() # Removed as per new flow
+    control_net2 = ControlNetLoader(r'xinsir\controlnet-union-sdxl-1.0_promax.safetensors') # Added new ControlNet
     
     return {
         'analysis_models': analysis_models,
         'insightface_model': insightface_model,
         'instantid': instantid,
         'control_net': control_net,
-        'occluder': occluder
+        # 'segmenter': segmenter, # Removed
+        'control_net2': control_net2, # Added
     }
 
 
@@ -58,29 +60,34 @@ def setup_conditioning(clip):
 def generate_face(models, image_data, model, vae, positive, negative):
     """生成人脸"""
     crop_image = image_data['crop_image']
-    analysis_models = models['analysis_models']
-    occluder = models['occluder']
+    # segmenter = models['segmenter'] # Removed
+    control_net2 = models['control_net2'] # Added
 
     latent = VAEEncode(crop_image, vae)
-    latent = KSamplerAdvanced(model, True, 9000, 4, 2, 'dpmpp_sde', 'karras', positive, negative, latent, 1, 3, False)
+    # KSamplerAdvanced seed changed from 9000 to 9000, steps 4, cfg 2 (remains same in first KSampler)
+    latent = KSamplerAdvanced(model, True, 9000, 4, 2, 'dpmpp_sde', 'karras', positive, negative, latent, 1, 2, False)
     image3 = VAEDecode(latent, vae)
     
-    warped_image = SFFaceMorph(crop_image, image3, 'ALL', 'Landmarks', 'CUDA')
-    warped_image2 = SFFaceMorph(crop_image, image3, 'OUTLINE', 'Landmarks', 'CUDA')
+    warped_image = SFFaceMorph(crop_image, image3, 'OUTLINE', 'JawLine', 'CUDA')
+    warped_image2 = SFFaceMorph(warped_image, image3, 'ALL', 'Landmarks', 'CUDA')
+
+    # New section from user workflow
+    control_net2 = SetUnionControlNetType(control_net2, 'depth')
+    image4_depth = DepthAnythingPreprocessor(warped_image2, 'depth_anything_vits14.pth', 1024)
+    positive2, negative2 = ControlNetApplyAdvanced(positive, negative, control_net2, image4_depth, 0.7000000000000002, 0, 1, None)
     
-    mask_params = SFMaskParams(0, 0.010000000000000002, False, 8, False)
-    image4, _ = SFFaceWarp(analysis_models, warped_image, warped_image2, 'main features', None, None, mask_params, False)
+    latent2 = VAEEncode(crop_image, vae) # Changed from warped_image2 to crop_image as per new flow
     
-    latent2 = VAEEncode(image4, vae)
+    # masks = SFPersonMaskGenerator(segmenter, warped_image2, True, False, True, False, False, 0.4, True) # Removed
+    # masks, _ = SFMaskChange(masks, 10, 0, False, 4, False) # Removed
+    _, mask_inverted = SFDepth2Mask(image4_depth, 0.4) # Added
+    latent2 = SetLatentNoiseMask(latent2, mask_inverted) # mask_inverted instead of masks
     
-    mask_params2 = SFMaskParams(0, 0.010000000000000002, False, 12, False)
-    mask, _, _ = SFGeneratePreciseFaceMask(occluder, image4, 0.1, mask_params2)
-    latent2 = SetLatentNoiseMask(latent2, mask)
+    # KSamplerAdvanced seed changed from 100008 to 100009, steps 9 to 7, cfg 1 to 1, denoise 5 to 3, end_at_step 100 to 100
+    latent2 = KSamplerAdvanced(model, True, 100009, 7, 1, 'dpmpp_sde', 'karras', positive2, negative2, latent2, 3, 100, False)
+    image5 = VAEDecode(latent2, vae) # image4 in old code, now image5 to match user flow
     
-    latent2 = KSamplerAdvanced(model, True, 100007, 9, 1, 'dpmpp_sde', 'karras', positive, negative, latent2, 5, 100, False)
-    image5 = VAEDecode(latent2, vae)
-    
-    return image5
+    return image5 # Return image5 as per new flow (was image4)
 
 
 def postprocess_image(image, image_data, output_file):
@@ -154,4 +161,4 @@ def run_v2(char: str, input_file: str, output_file: str,  expression_edit: bool 
         if message_callback:
             message_callback(error_msg)
         # 抛出异常，让上层处理
-        raise 
+        raise
