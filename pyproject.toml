@@ -105,7 +105,7 @@ dependencies = [
     "comfy-script",
     "facexlib>=0.3.0",
     "xformers",
-    "groundingdino-py @ file:///D:/codes/aivision/ComfyUI/.cache/groundingdino_py-0.4.0-py2.py3-none-any.whl",
+    "groundingdino-py @ file:///D:/codes/aivision/ComfyUI/wheels/groundingdino_py-0.4.0-py2.py3-none-any.whl",
     "tkinterdnd2>=0.4.3",
     "tensorrt>=10.0.1",
     "fastapi<0.113.0",
