@@ -9,16 +9,13 @@ def load_models():
     insightface_model, analysis_models = SFFaceAnalysisModels('antelopev2', 'CUDA')
     instantid = InstantIDModelLoader('ip-adapter.bin')
     control_net = ControlNetLoader(r'instantid\diffusion_pytorch_model.safetensors')
-    # segmenter = SFPersonSegmenterLoader() # Removed as per new flow
-    control_net2 = ControlNetLoader(r'xinsir\controlnet-union-sdxl-1.0_promax.safetensors') # Added new ControlNet
+    # IPAdapter新增
     
     return {
         'analysis_models': analysis_models,
         'insightface_model': insightface_model,
         'instantid': instantid,
         'control_net': control_net,
-        # 'segmenter': segmenter, # Removed
-        'control_net2': control_net2, # Added
     }
 
 
@@ -37,13 +34,14 @@ def preprocess_image(models, input_file):
     image, _ = LoadImageFromPath(input_file)
     image, _, _, _, _ = SFImageScaleBySpecifiedSide(image, 'lanczos', 1920, False, True, None)
     aligned_image, rotation_info = SFAlignImageByFace(models['analysis_models'], image, True, False, 10, False, None)
-    bounding_infos, crop_images, _, = SFFaceCutout(models['analysis_models'], aligned_image, 0, 0.5000000000000001, 'sdxl', 1, 0, 0.10000000000000002, 0, 0.05000000000000001, False)
-    _, _, _, _, crop_image, bounding_info = SFExtractBoundingBox(bounding_infos, crop_images, 0)
+    bounding_infos, crop_images, _ = SFFaceCutout(models['analysis_models'], aligned_image, 0, 0.5000000000000001, 'sdxl', 1, 0, 0.10000000000000002, 0, 0.04000000000000001, False)
+    _, _, _, _, crop_image, mask, bounding_info = SFExtractBoundingBox(bounding_infos, crop_images, 0)
     
     return {
         'original_image': image,
         'aligned_image': aligned_image,
         'crop_image': crop_image,
+        'mask': mask,
         'bounding_info': bounding_info,
         'rotation_info': rotation_info
     }
@@ -57,42 +55,28 @@ def setup_conditioning(clip):
     return conditioning, conditioning2
 
 
-def generate_face(models, image_data, model, vae, positive, negative):
+def generate_face(image_data, model, vae, positive, negative):
     """生成人脸"""
     crop_image = image_data['crop_image']
-    # segmenter = models['segmenter'] # Removed
-    control_net2 = models['control_net2'] # Added
+    mask = image_data['mask']
 
+    # 设置IPAdapter
+    model, ipadapter = IPAdapterUnifiedLoader(model, 'STANDARD (medium strength)', None)
+    prep_image = PrepImageForClipVision(crop_image, 'LANCZOS', 'right', 0.10000000000000002)
+    model = IPAdapterAdvanced(model, ipadapter, prep_image, 0.6000000000000001, 'linear', 'concat', 0, 1, 'K+V', prep_image, None, None)
+    
+    # 编码、处理和解码
     latent = VAEEncode(crop_image, vae)
-    # KSamplerAdvanced seed changed from 9000 to 9000, steps 4, cfg 2 (remains same in first KSampler)
-    latent = KSamplerAdvanced(model, True, 9000, 4, 2, 'dpmpp_sde', 'karras', positive, negative, latent, 1, 2, False)
-    image3 = VAEDecode(latent, vae)
+    latent = SetLatentNoiseMask(latent, mask)
+    latent = KSamplerAdvanced(model, True, 9001, 7, 1, 'dpmpp_sde', 'karras', positive, negative, latent, 3, 100, False)
+    image = VAEDecode(latent, vae)
     
-    warped_image = SFFaceMorph(crop_image, image3, 'OUTLINE', 'JawLine', 'CUDA')
-    warped_image2 = SFFaceMorph(warped_image, image3, 'ALL', 'Landmarks', 'CUDA')
-
-    # New section from user workflow
-    control_net2 = SetUnionControlNetType(control_net2, 'depth')
-    image4_depth = DepthAnythingPreprocessor(warped_image2, 'depth_anything_vits14.pth', 1024)
-    positive2, negative2 = ControlNetApplyAdvanced(positive, negative, control_net2, image4_depth, 0.7000000000000002, 0, 1, None)
-    
-    latent2 = VAEEncode(crop_image, vae) # Changed from warped_image2 to crop_image as per new flow
-    
-    # masks = SFPersonMaskGenerator(segmenter, warped_image2, True, False, True, False, False, 0.4, True) # Removed
-    # masks, _ = SFMaskChange(masks, 10, 0, False, 4, False) # Removed
-    _, mask_inverted = SFDepth2Mask(image4_depth, 0.4) # Added
-    latent2 = SetLatentNoiseMask(latent2, mask_inverted) # mask_inverted instead of masks
-    
-    # KSamplerAdvanced seed changed from 100008 to 100009, steps 9 to 7, cfg 1 to 1, denoise 5 to 3, end_at_step 100 to 100
-    latent2 = KSamplerAdvanced(model, True, 100009, 7, 1, 'dpmpp_sde', 'karras', positive2, negative2, latent2, 3, 100, False)
-    image5 = VAEDecode(latent2, vae) # image4 in old code, now image5 to match user flow
-    
-    return image5 # Return image5 as per new flow (was image4)
+    return image
 
 
 def postprocess_image(image, image_data, output_file):
     """后处理图像并保存"""
-    image = SFImageColorMatch(image, image_data['crop_image'], 'RGB', 1, 'auto', 0, None)
+    image = SFImageColorMatch(image, image_data['crop_image'], 'YUV', 1, 'gpu', 0, None)
     image, _ = SFFacePaste(image_data['bounding_info'], image, image_data['aligned_image'])
     image = SFRestoreRotatedImage(image, image_data['rotation_info'])
     
@@ -148,7 +132,7 @@ def run_v2(char: str, input_file: str, output_file: str,  expression_edit: bool 
             )
             
             # 6. 生成人脸
-            face_image = generate_face(models, image_data, model, vae, positive, negative)
+            face_image = generate_face(image_data, model, vae, positive, negative)
             
             # 7. 后处理并保存
             postprocess_image(face_image, image_data, output_file)
