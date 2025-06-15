@@ -30,28 +30,31 @@ def run(input_file: str, output_file: str, message_callback=None):
         with Workflow():
             
     
-            image, _ = LoadImage(input_file)
-            image, _, _, _, _ = SFImageScalerByPixels(image, 'lanczos', 2.0000000000000004, True, None)
+            _, analysis_models = SFFaceAnalysisModels('antelopev2', 'CUDA')
+            image, _ = LoadImageFromPath(input_file)
+            image, rotation_info = SFAlignImageByFace(analysis_models, image, True, True, 10, False, None)
             segmenter = SFPersonSegmenterLoader()
             masks = SFPersonMaskGenerator(segmenter, image, True, False, True, True, True, 0.4, True)
-            cutout_image, _, cutout_origin_image, cutinfo = SFInpaintCutOut(image, masks, 0, 0.20000000000000004, 'sdxl', 1, 0, 0, 0, 0)
+            image2, masks, _, _, _ = SFImageScalerByPixels(image, 'lanczos', 2.0000000000000004, True, masks)
+            image2, _, _, cutinfo = SFInpaintCutOut(image2, masks, 0, 0.20000000000000004, 'sdxl', 1, 0, 0, 0, 0)
             model, clip, vae = CheckpointLoaderSimple(r'xl\RealVisXL_V5.0_Lightning_fp16.safetensors')
-            conditioning = SFAdvancedCLIPTextEncode('slim asian girl,(completely nude:1.6),(tiny breasts:1.25), pussy,vagina,small breasts,small nipples,(no pubic hair , vaginal lips clearly visible:1.2),realistic, detailed', clip, 'length+mean', 'A1111')
+            conditioning = SFAdvancedCLIPTextEncode('slim asian girl,(completely nude:1.6),(tiny breasts:1.25), Photorealism,Photomanipulation, detailed', clip, 'length+mean', 'A1111')
             conditioning2 = SFAdvancedCLIPTextEncode('(worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), cloth,open mouth', clip, 'length+mean', 'A1111')
             control_net = ControlNetLoader(r'xinsir\controlnet-union-sdxl-1.0_promax.safetensors')
             control_net2 = SetUnionControlNetType(control_net, 'depth')
-            image2 = DepthAnythingPreprocessor(cutout_image, 'depth_anything_vits14.pth', 1024)
-            positive, negative = ControlNetApplyAdvanced(conditioning, conditioning2, control_net2, image2, 0.25000000000000006, 0, 1, vae)
+            image3 = DepthAnythingPreprocessor(image2, 'depth_anything_vits14.pth', 1024)
+            positive, negative = ControlNetApplyAdvanced(conditioning, conditioning2, control_net2, image3, 0.25000000000000006, 0, 1, vae)
             control_net3 = SetUnionControlNetType(control_net, 'repaint')
-            masks2 = SFPersonMaskGenerator(segmenter, cutout_image, False, False, False, False, True, 0.4, True)
+            masks2 = SFPersonMaskGenerator(segmenter, image2, False, False, False, False, True, 0.4, True)
             masks2, _ = SFMaskChange(masks2, 0, 0.010000000000000002, False, 4, False)
-            image3 = InpaintPreprocessor(cutout_image, masks2, True)
-            positive2, negative2 = ControlNetApplyAdvanced(positive, negative, control_net3, image3, 0.8500000000000002, 0, 1, vae)
-            latent = VAEEncode(cutout_image, vae)
-            latent = KSampler(model, 17, 4, 1.5, 'dpmpp_sde', 'karras', positive2, negative2, latent, 1)
-            image4 = VAEDecode(latent, vae)
-            image4, _ = SFInpaintPaste(cutinfo, image4)
-            images = util.get_images(image4)  # type: ignore
+            image4 = InpaintPreprocessor(image2, masks2, True)
+            positive2, negative2 = ControlNetApplyAdvanced(positive, negative, control_net3, image4, 0.8500000000000002, 0, 1, vae)
+            latent = VAEEncode(image2, vae)
+            latent = KSampler(model, 17, 4, 2, 'dpmpp_sde', 'karras', positive2, negative2, latent, 1)
+            image5 = VAEDecode(latent, vae)
+            image5, _ = SFInpaintPaste(cutinfo, image5)
+            image5 = SFRestoreRotatedImage(image5, rotation_info)
+            images = util.get_images(image5)  # type: ignore
             images[0].save(output_file) # type: ignore
             
         if message_callback:
