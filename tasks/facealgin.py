@@ -172,7 +172,7 @@ if __name__ == "__main__":
     # out_dir = args.out_dir
 
 
-    out_dir = os.path.join(r'D:\codes\aivision\fworker\assets\face_pieces',in_dir.split('\\')[-1])
+    out_dir = os.path.join(r'D:\codes\aivision\asserts\face_pieces',in_dir.split('\\')[-1])
     print(out_dir)
 
     os.makedirs(out_dir, exist_ok=True)
