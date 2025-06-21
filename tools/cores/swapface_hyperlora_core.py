@@ -9,13 +9,14 @@ def load_models():
     insightface_model, analysis_models = SFFaceAnalysisModels('antelopev2', 'CUDA')
     instantid = InstantIDModelLoader('ip-adapter.bin')
     control_net = ControlNetLoader(r'instantid\diffusion_pytorch_model.safetensors')
-    # IPAdapter新增
+    segmenter = SFPersonSegmenterLoader()
     
     return {
         'analysis_models': analysis_models,
         'insightface_model': insightface_model,
         'instantid': instantid,
         'control_net': control_net,
+        'segmenter': segmenter,
     }
 
 
@@ -55,18 +56,25 @@ def setup_conditioning(clip):
     return conditioning, conditioning2
 
 
-def generate_face(image_data, model, vae, positive, negative):
+def generate_face(image_data, models, model, vae, positive, negative):
     """生成人脸"""
     crop_image = image_data['crop_image']
-    mask = image_data['mask']
 
     # 设置IPAdapter
     model, ipadapter = IPAdapterUnifiedLoader(model, 'STANDARD (medium strength)', None)
-    prep_image = PrepImageForClipVision(crop_image, 'LANCZOS', 'right', 0.10000000000000002)
+    prep_image = PrepImageForClipVision(crop_image, 'LANCZOS', 'center', 0.10000000000000002)
     model = IPAdapterAdvanced(model, ipadapter, prep_image, 0.6000000000000001, 'linear', 'concat', 0, 1, 'K+V', prep_image, None, None)
     
-    # 编码、处理和解码
+    # 编码
     latent = VAEEncode(crop_image, vae)
+    
+    # 生成人物分割遮罩
+    masks = SFPersonMaskGenerator(models['segmenter'], crop_image, False, False, True, False, False, 0.4, True)
+    mask = InvertMask(masks)
+    mask = SFMaskPaintArea(mask, masks, '自定义值', 0.8000000000000002)
+    mask, _ = SFMaskChange(mask, 0, 0, False, 4, False)
+    
+    # 应用遮罩并采样
     latent = SetLatentNoiseMask(latent, mask)
     latent = KSamplerAdvanced(model, True, 9001, 7, 1, 'dpmpp_sde', 'karras', positive, negative, latent, 3, 100, False)
     image = VAEDecode(latent, vae)
@@ -132,7 +140,7 @@ def run_v2(char: str, input_file: str, output_file: str,  expression_edit: bool 
             )
             
             # 6. 生成人脸
-            face_image = generate_face(image_data, model, vae, positive, negative)
+            face_image = generate_face(image_data, models, model, vae, positive, negative)
             
             # 7. 后处理并保存
             postprocess_image(face_image, image_data, output_file)
