@@ -4,91 +4,8 @@ load()
 from comfy_script.runtime.nodes import * # type: ignore
 
 
-def load_models():
-    """加载所需的模型"""
-    insightface_model, analysis_models = SFFaceAnalysisModels('antelopev2', 'CUDA')
-    instantid = InstantIDModelLoader('ip-adapter.bin')
-    control_net = ControlNetLoader(r'instantid\diffusion_pytorch_model.safetensors')
-    segmenter = SFPersonSegmenterLoader()
-    
-    return {
-        'analysis_models': analysis_models,
-        'insightface_model': insightface_model,
-        'instantid': instantid,
-        'control_net': control_net,
-        'segmenter': segmenter,
-    }
+def postprocess_image(image, output_file):
 
-
-def load_character_and_base_models(char):
-    """加载角色LoRA和基础模型"""
-    lora, char_image = HyperLoRALoadCharLoRA(char)
-    model, clip, vae = CheckpointLoaderSimple(r'xl\dreamshaperXL_v21TurboDPMSDE.safetensors')
-    model = HyperLoRAApplyLoRA(model, lora, 0.85)
-    clip = CLIPSetLastLayer(clip, -2)
-    
-    return model, clip, vae, char_image
-
-
-def preprocess_image(models, input_file):
-    """预处理输入图像"""
-    image, _ = LoadImageFromPath(input_file)
-    image, _, _, _, _ = SFImageScaleBySpecifiedSide(image, 'lanczos', 1920, False, True, None)
-    aligned_image, rotation_info = SFAlignImageByFace(models['analysis_models'], image, True, False, 10, False, None)
-    bounding_infos, crop_images, _ = SFFaceCutout(models['analysis_models'], aligned_image, 0, 0.5000000000000001, 'sdxl', 1, 0, 0.10000000000000002, 0, 0.04000000000000001, False)
-    _, _, _, _, crop_image, mask, bounding_info = SFExtractBoundingBox(bounding_infos, crop_images, 0)
-    
-    return {
-        'original_image': image,
-        'aligned_image': aligned_image,
-        'crop_image': crop_image,
-        'mask': mask,
-        'bounding_info': bounding_info,
-        'rotation_info': rotation_info
-    }
-
-
-def setup_conditioning(clip):
-    """设置正向和负向提示词"""
-    conditioning = SFAdvancedCLIPTextEncode('fcsks fxhks fhyks,a beautiful girl,close up, Look at the camera,photo realistic, high details', clip, 'length+mean', 'A1111')
-    conditioning2 = SFAdvancedCLIPTextEncode('freckles,Extra fingers,lowres, bad anatomy, bad hands, text, error, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, bad feet', clip, 'length+mean', 'A1111')
-    
-    return conditioning, conditioning2
-
-
-def generate_face(image_data, models, model, vae, positive, negative):
-    """生成人脸"""
-    crop_image = image_data['crop_image']
-
-    # 设置IPAdapter
-    model, ipadapter = IPAdapterUnifiedLoader(model, 'STANDARD (medium strength)', None)
-    prep_image = PrepImageForClipVision(crop_image, 'LANCZOS', 'center', 0.10000000000000002)
-    model = IPAdapterAdvanced(model, ipadapter, prep_image, 0.6000000000000001, 'linear', 'concat', 0, 1, 'K+V', prep_image, None, None)
-    
-    # 编码
-    latent = VAEEncode(crop_image, vae)
-    
-    # 生成人物分割遮罩
-    masks = SFPersonMaskGenerator(models['segmenter'], crop_image, False, False, True, False, False, 0.4, True)
-    mask = InvertMask(masks)
-    mask = SFMaskPaintArea(mask, masks, '自定义值', 0.8000000000000002)
-    mask, _ = SFMaskChange(mask, 0, 0, False, 4, False)
-    
-    # 应用遮罩并采样
-    latent = SetLatentNoiseMask(latent, mask)
-    latent = KSamplerAdvanced(model, True, 9001, 7, 1, 'dpmpp_sde', 'karras', positive, negative, latent, 3, 100, False)
-    image = VAEDecode(latent, vae)
-    
-    return image
-
-
-def postprocess_image(image, image_data, output_file):
-    """后处理图像并保存"""
-    image = SFImageColorMatch(image, image_data['crop_image'], 'YUV', 1, 'gpu', 0, None)
-    image, _ = SFFacePaste(image_data['bounding_info'], image, image_data['aligned_image'])
-    image = SFRestoreRotatedImage(image, image_data['rotation_info'])
-    
-    # 保存图像
     images = util.get_images(image)
     images[0].save(output_file) # type: ignore
 
@@ -120,30 +37,38 @@ def run_v2(char: str, input_file: str, output_file: str,  expression_edit: bool 
             
         queue.watch_display(False)
         with Workflow():
-            # 1. 加载模型
-            models = load_models()
-                        
-            # 2. 加载角色和基础模型
-            model, clip, vae, char_image = load_character_and_base_models(char)
-            
-            # 3. 预处理图像
-            image_data = preprocess_image(models, input_file)
-            
-            # 4. 设置条件提示词
-            positive, negative = setup_conditioning(clip)
-            
-            # 5. 应用InstantID
-            model, positive, negative = ApplyInstantIDAdvanced(
-                models['instantid'], models['insightface_model'], models['control_net'], 
-                char_image, model, positive, negative, 0, 0.6000000000000001, 
-                0, 1, 0, 'average', image_data['crop_image'], None
-            )
-            
-            # 6. 生成人脸
-            face_image = generate_face(image_data, models, model, vae, positive, negative)
-            
-            # 7. 后处理并保存
-            postprocess_image(face_image, image_data, output_file)
+            insightface, analysis_models = SFFaceAnalysisModels('antelopev2', 'CUDA')
+            image, _ = LoadImageFromPath(input_file)
+            image, _, _, _, _ = SFImageScalerForSDModels(image, 'lanczos', 'sdxl', None)
+            aligned_image, rotation_info = SFAlignImageByFace(analysis_models, image, True, False, 10, False, None)
+            bounding_infos, crop_images, _ = SFFaceCutout(analysis_models, aligned_image, 0, 0.5000000000000001, 'sdxl', 1, 0, 0.1, 32, False, False)
+            _, _, _, _, crop_image, _, bounding_info = SFExtractBoundingBox(bounding_infos, crop_images, 0)
+            instantid = InstantIDModelLoader('ip-adapter.bin')
+            control_net = ControlNetLoader(r'instantid\diffusion_pytorch_model.safetensors')
+            lora, image2 = HyperLoRALoadCharLoRA(char)
+            model, clip, vae = CheckpointLoaderSimple(r'xl\pornmaster_proSDXLV4VAE.safetensors')
+            model = HyperLoRAApplyLoRA(model, lora, 0.8)
+            conditioning = SFAdvancedCLIPTextEncode('fcsks fxhks fhyks,a beautiful girl,close up', clip, 'length+mean', 'A1111')
+            clip2 = CLIPSetLastLayer(clip, -2)
+            conditioning2 = SFAdvancedCLIPTextEncode('text, watermark,tatoo,extra leg,extra finger,extra hand,extra arms,extra legs', clip2, 'length+mean', 'A1111')
+            model, positive, negative = ApplyInstantIDAdvanced(instantid, insightface, control_net, image2, model, conditioning, conditioning2, 0, 0.6000000000000001, 0, 1, 0, 'average', aligned_image, None)
+            control_net2 = ControlNetLoader(r'xinsir\controlnet-union-sdxl-1.0_promax.safetensors')
+            control_net2 = SetUnionControlNetType(control_net2, 'tile')
+            image3 = AIOPreprocessor(crop_image, 'TilePreprocessor', 512)
+            positive2, negative2 = ACNAdvancedControlNetApplyV2(positive, negative, control_net2, image3, 0.45000000000000007, 0, 0.5000000000000001, None, None, None, None, vae)
+            sampler = KSamplerSelect('dpmpp_2m')
+            sigmas = AlignYourStepsScheduler('SDXL', 10, 0.7000000000000002)
+            latent = VAEEncode(crop_image, vae)
+            segmenter = SFPersonSegmenterLoader()
+            reshaped_image = SFFaceReshape(crop_image, 0.8500000000000002, 0.8500000000000002, '是', 'CPU')
+            masks = SFPersonMaskGenerator(segmenter, reshaped_image, True, False, False, False, False, 0.6000000000000001, True)
+            masks, _ = SFMaskChange(masks, 0, 0, False, 6, False)
+            latent = SetLatentNoiseMask(latent, masks)
+            latent, _ = SamplerCustom(model, True, 1002, 6, positive2, negative2, sampler, sigmas, latent)
+            image4 = VAEDecode(latent, vae)
+            image5 = SFImageColorMatch(image4, crop_image, 'LAB', 1, 'auto', 0, None)
+            image6, _ = SFFacePaste(bounding_info, image5, aligned_image)
+            postprocess_image(image6, output_file)
                         
         if message_callback:
             message_callback(f'{os.path.basename(input_file)} 处理完成')
