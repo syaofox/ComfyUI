@@ -109,6 +109,7 @@ dependencies = [
     "tkinterdnd2>=0.4.3",
     "tensorrt>=10.0.1",
     "fastapi<0.113.0",
+    "peft>=0.7.0",
 ]
 
 [project.urls]
