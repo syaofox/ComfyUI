@@ -20,11 +20,11 @@ dependencies = [
     "comfyui-ib-customnodes>=0.2.1",
     "comfyui-tooling-nodes>=0.1.0",
     "comfyui-workflow-templates==0.1.30",
-    "diffusers==0.32.2",
+    "diffusers>=0.31.0",
     "dill>=0.4.0",
     "dlib>=19.24.8",
     "dynaconf>=3.2.11",
-    "einops>=0.8.1",
+    "einops>=0.7.0",
     "face-alignment>=1.4.1",
     "filelock>=3.18.0",
     "flow-vis>=0.1",
@@ -114,6 +114,8 @@ dependencies = [
     "alembic>=1.16.2",
     "sqlalchemy>=2.0.41",
     "pydantic-settings~=2.0",
+    "gguf>=0.13.0",
+    "protobuf>=4.25.7",
 ]
 
 [project.urls]
