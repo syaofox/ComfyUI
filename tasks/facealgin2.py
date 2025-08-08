@@ -45,6 +45,7 @@ def align_face(
     expand_right: float = 0.0,
     expand_bottom: float = 0.0,
     expand_left: float = 0.0,
+    short_side: int | None = 1200,
 ):
     """
     :param filepath: str
@@ -53,6 +54,7 @@ def align_face(
     :param expand_right: float 比例，基于初始人脸检测到的裁切宽，向右额外扩展比例
     :param expand_bottom: float 比例，基于初始人脸检测到的裁切高，向下额外扩展比例
     :param expand_left: float 比例，基于初始人脸检测到的裁切宽，向左额外扩展比例
+    :param short_side: 最终输出短边目标像素，保持长宽比缩放；传入 None 或 <=0 表示不缩放
     :return: PIL Image
     """
 
@@ -197,6 +199,17 @@ def align_face(
             PIL.Image.Resampling.BICUBIC,
         )
 
+        # 若指定短边缩放，则按比例缩放到目标短边（不改变长宽比）
+        if short_side is not None and int(short_side) > 0:
+            cur_w, cur_h = img.size
+            short = min(cur_w, cur_h)
+            if short > 0 and short != short_side:
+                scale = float(short_side) / float(short)
+                new_w = max(1, int(np.rint(cur_w * scale)))
+                new_h = max(1, int(np.rint(cur_h * scale)))
+                if (new_w, new_h) != (cur_w, cur_h):
+                    img = img.resize((new_w, new_h), PIL.Image.Resampling.LANCZOS)
+
         out_path = Path(out_path)
         nfname = f"{out_path.stem}_{idx:04}.png"
         ofname = out_path.parent / nfname
@@ -209,8 +222,9 @@ if __name__ == "__main__":
     # parser.add_argument("out_dir", type=str, help="输出图片目录路径")
     parser.add_argument("--expand-top", dest="expand_top", type=float, default=0.5, help="向上扩展比例（基于初始裁切高）")
     parser.add_argument("--expand-right", dest="expand_right", type=float, default=0.7, help="向右扩展比例（基于初始裁切宽）")
-    parser.add_argument("--expand-bottom", dest="expand_bottom", type=float, default=2, help="向下扩展比例（基于初始裁切高）")
+    parser.add_argument("--expand-bottom", dest="expand_bottom", type=float, default=2.0, help="向下扩展比例（基于初始裁切高）")
     parser.add_argument("--expand-left", dest="expand_left", type=float, default=0.7, help="向左扩展比例（基于初始裁切宽）")
+    parser.add_argument("--short-side", dest="short_side", type=int, default=1200, help="最终短边像素，保持长宽比缩放；<=0 代表不缩放")
     args = parser.parse_args()
 
     in_dir = args.in_dir
@@ -239,4 +253,5 @@ if __name__ == "__main__":
             expand_right=args.expand_right,
             expand_bottom=args.expand_bottom,
             expand_left=args.expand_left,
+            short_side=args.short_side,
         )
