@@ -15,7 +15,7 @@ dependencies = [
     "torchaudio",
     "numpy>=1.26.4",
     "einops",
-    "transformers>=4.38.1",
+    "transformers>=4",
     "tokenizers>=0.13.3",
     "sentencepiece",
     "safetensors>=0.4.2",
@@ -61,11 +61,15 @@ dependencies = [
     "opencv-python-headless>=4.11.0.86",
     "imageio-ffmpeg>=0.5.1",
     "lmdb>=1.4.1",
-    "timm>=1.0.7",
+    "timm>=1.0.9",
     "rich>=13.7.1",
     "ultralytics>=8.3.184",
     "tyro==0.8.5",
     "dill>=0.4.0",
+    "librosa>=0.11.0",
+    "torchdiffeq>=0.2.5",
+    "face-alignment>=1.4.1",
+    "seconohe>=1.0.2",
 ]
 
 [project.urls]
