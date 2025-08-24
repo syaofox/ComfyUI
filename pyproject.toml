@@ -56,6 +56,8 @@ dependencies = [
     "insightface>=0.7.3",
     "onnxruntime>=1.17.1",
     "onnxruntime-gpu>=1.20.2 ; platform_machine == 'x86_64' and sys_platform != 'darwin'",
+    "color-matcher>=0.6.0",
+    "translators>=6.0.1",
 ]
 
 [project.urls]
