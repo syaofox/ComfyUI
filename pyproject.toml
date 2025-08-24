@@ -15,7 +15,7 @@ dependencies = [
     "torchaudio",
     "numpy>=1.26.4",
     "einops",
-    "transformers>=4",
+    "transformers==4.51.2",
     "tokenizers>=0.13.3",
     "sentencepiece",
     "safetensors>=0.4.2",
@@ -70,6 +70,7 @@ dependencies = [
     "torchdiffeq>=0.2.5",
     "face-alignment>=1.4.1",
     "seconohe>=1.0.2",
+    "accelerate>=1.10.0",
 ]
 
 [project.urls]
