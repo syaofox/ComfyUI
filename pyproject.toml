@@ -71,6 +71,7 @@ dependencies = [
     "face-alignment>=1.4.1",
     "seconohe>=1.0.2",
     "accelerate>=1.10.0",
+    "segment-anything>=1.0",
 ]
 
 [project.urls]
