@@ -1,0 +1,17 @@
+services:
+  comfyui:
+    build: .
+    gpus: all
+    restart: unless-stopped
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    ports:
+      - "8188:8188"
+    volumes:
+      - /mnt/github/ComfyUI/input:/app/input
+      - /mnt/github/ComfyUI/temp:/app/temp
+      - /mnt/github/ComfyUI/output:/app/output
+      - /mnt/github/ComfyUI/models:/app/models
+      - /mnt/github/ComfyUI/custom_nodes:/app/custom_nodes
+      - /mnt/github/ComfyUI/user:/app/user
