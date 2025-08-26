@@ -17,7 +17,7 @@ dependencies = [
     "einops",
     "transformers==4.51.2",
     "tokenizers>=0.13.3",
-    "sentencepiece",
+    "sentencepiece>=0.2.0",
     "safetensors>=0.4.2",
     "aiohttp>=3.11.8",
     "yarl>=1.18.0",
@@ -52,7 +52,7 @@ dependencies = [
     "albumentations>=1.4.10",
     "scikit-learn>=1.6.1",
     "matplotlib>=3.9.4",
-    "diffusers>=0.26.3",
+    "diffusers>=0.33.0",
     "insightface>=0.7.3",
     "onnxruntime>=1.17.1",
     "onnxruntime-gpu>=1.20.2 ; platform_machine == 'x86_64' and sys_platform != 'darwin'",
@@ -70,8 +70,12 @@ dependencies = [
     "torchdiffeq>=0.2.5",
     "face-alignment>=1.4.1",
     "seconohe>=1.0.2",
-    "accelerate>=1.10.0",
+    "accelerate>=1.2.1",
     "segment-anything>=1.0",
+    "gguf>=0.14.0",
+    "protobuf>=4.25.8",
+    "peft>=0.15.0",
+    "pyloudnorm>=0.1.1",
 ]
 
 [project.urls]
