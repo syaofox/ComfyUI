@@ -6,16 +6,16 @@ license = { file = "LICENSE" }
 requires-python = ">=3.9"
 
 dependencies = [
-    "comfyui-frontend-package==1.25.10",
-    "comfyui-workflow-templates==0.1.65",
+    "comfyui-frontend-package==1.25.11",
+    "comfyui-workflow-templates==0.1.66",
     "comfyui-embedded-docs==0.2.6",
     "torch",
     "torchsde",
     "torchvision",
     "torchaudio",
-    "numpy>=1.26.4",
+    "numpy>=1.25.0",
     "einops",
-    "transformers==4.51.2",
+    "transformers>=4.37.2",
     "tokenizers>=0.13.3",
     "sentencepiece>=0.2.0",
     "safetensors>=0.4.2",
@@ -27,7 +27,7 @@ dependencies = [
     "tqdm",
     "psutil",
     "alembic",
-    "SQLAlchemy",
+    "sqlalchemy",
     "av>=14.2.0",
     "kornia>=0.7.1",
     "spandrel",
@@ -35,8 +35,8 @@ dependencies = [
     "pydantic~=2.0",
     "pydantic-settings~=2.0",
     "importlib-metadata>=8.7.0",
-    "huggingface-hub>=0.34.4",
-    "opencv-python>=4.9.0.80",
+    "huggingface-hub>=0.19.0",
+    "opencv-python>=4.7.0",
     "filelock>=3.19.1",
     "scikit-image>=0.24.0",
     "python-dateutil>=2.9.0.post0",
@@ -54,7 +54,7 @@ dependencies = [
     "matplotlib>=3.9.4",
     "diffusers>=0.33.0",
     "insightface>=0.7.3",
-    "onnxruntime>=1.17.1",
+    "onnxruntime>=1.15.0",
     "onnxruntime-gpu>=1.20.2 ; platform_machine == 'x86_64' and sys_platform != 'darwin'",
     "color-matcher>=0.6.0",
     "translators>=6.0.1",
@@ -73,13 +73,18 @@ dependencies = [
     "accelerate>=1.2.1",
     "segment-anything>=1.0",
     "gguf>=0.14.0",
-    "protobuf>=4.25.8",
+    "protobuf>=3.20.2,<6.0.0",
     "peft>=0.15.0",
     "pyloudnorm>=0.1.1",
     "moviepy>=2.2.1",
     "sageattention>=1.0.6",
     "triton-windows>=3.4.0.post20",
     "mss>=10.1.0",
+    "transparent-background>=1.1.2",
+    "groundingdino-py>=0.4.0",
+    "onnxruntime-gpu>=1.15.0",
+    "hydra-core>=1.3.0",
+    "iopath>=0.1.9",
 ]
 
 [project.urls]
@@ -113,6 +118,7 @@ torchaudio = [
 ]
 comfy-script = { path = "custom_nodes/ComfyScript", editable = true }
 sageattention = { path = "whl/sageattention-2.1.1+cu128torch2.8.0-cp312-cp312-win_amd64.whl" }
+groundingdino-py = { path = "whl/groundingdino_py-0.4.0-py2.py3-none-any.whl" }
 
 [[tool.uv.index]]
 name = "pytorch-cu128"
