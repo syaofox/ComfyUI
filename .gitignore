@@ -27,3 +27,4 @@ uv.lock
 
 whl/
 .cache/
+.github/
