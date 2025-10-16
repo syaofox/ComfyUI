@@ -25,20 +25,4 @@ echo "  HF_HOME: $HF_HOME"
 echo "  MODELSCOPE_CACHE: $MODELSCOPE_CACHE"
 echo "  U2NET_HOME: $U2NET_HOME"
 
-# 检查 Python 虚拟环境是否存在
-VENV_PATH="./.venv"
-if [ ! -d "$VENV_PATH" ]; then
-    echo "Error: Virtual environment not found at $VENV_PATH"
-    echo "Please create it first (e.g., python3 -m venv .venv)."
-    exit 1
-fi
-
-# 激活 Python 虚拟环境
-echo "Activating Python virtual environment..."
-source "$VENV_PATH/bin/activate"
-
-# 启动 ComfyUI
-echo "Starting ComfyUI..."
-python main.py
-
-echo "ComfyUI script finished."
+uv run main.py
