@@ -83,10 +83,10 @@ if not args.cuda_malloc:
 
 
 if args.cuda_malloc and not args.disable_cuda_malloc:
-    env_var = os.environ.get('PYTORCH_CUDA_ALLOC_CONF', None)
+    env_var = os.environ.get('PYTORCH_ALLOC_CONF', None)
     if env_var is None:
         env_var = "backend:cudaMallocAsync"
     else:
         env_var += ",backend:cudaMallocAsync"
 
-    os.environ['PYTORCH_CUDA_ALLOC_CONF'] = env_var
+    os.environ['PYTORCH_ALLOC_CONF'] = env_var
