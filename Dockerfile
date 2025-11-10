@@ -28,7 +28,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 WORKDIR /app
 
 # 复制项目元数据用于安装依赖
-COPY --chown=${USERNAME}:${USERNAME} pyproject.toml uv.lock requirements.txt ./
+COPY --chown=${USERNAME}:${USERNAME} pyproject.toml requirements.txt ./
 
 # 复制核心代码（运行时其余目录通过卷挂载）
 COPY --chown=${USERNAME}:${USERNAME} main.py ./
@@ -54,13 +54,14 @@ COPY --chown=${USERNAME}:${USERNAME} run.sh ./run.sh
 # 使用国内 PyPI 镜像（可按需调整）
 ENV UV_INDEX_URL=https://mirrors.aliyun.com/pypi/simple
 ENV UV_EXTRA_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
+ENV TORCH_CUDA_ARCH_LIST="8.6"
 
 # 使用非 root 用户安装 Python 与依赖
 USER ${USERNAME}
 
 # 安装 Python 与依赖
 RUN uv python install 3.12 && \
-    uv sync --frozen
+    uv --preview-features extra-build-dependencies sync
 
 # 运行时环境变量
 ENV HF_HOME=/app/.caches/hf_download \
@@ -68,7 +69,7 @@ ENV HF_HOME=/app/.caches/hf_download \
     OMP_NUM_THREADS=1 \
     PYTHONUNBUFFERED=1
 
-RUN mkdir -p /app/.caches/hf_download /app/.caches/modelscope /app/.cache/temp /app/output /app/models /app/custom_nodes /app/user
+RUN mkdir -p /app/.caches/hf_download /app/.caches/modelscope /app/.cache/temp /app/output /app/models /app/custom_nodes /app/user /app/input /app/temp
 
 EXPOSE 8188
 

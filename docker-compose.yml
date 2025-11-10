@@ -9,6 +9,8 @@ services:
     ports:
       - "8188:8188"
     volumes:
+      - /mnt/github/ComfyUI/input:/app/input
+      - /mnt/github/ComfyUI/temp:/app/temp
       - /mnt/github/ComfyUI/output:/app/output
       - /mnt/github/ComfyUI/models:/app/models
       - /mnt/github/ComfyUI/custom_nodes:/app/custom_nodes
