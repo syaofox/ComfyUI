@@ -13,7 +13,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # 配置
-CUSTOM_NODES_DIR="/mnt/ssd/dev/ComfyUI/custom_nodes"
+CUSTOM_NODES_DIR="/mnt/github/ComfyUI/custom_nodes"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # 统计变量
