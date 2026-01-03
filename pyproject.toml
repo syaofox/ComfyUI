@@ -18,7 +18,7 @@ dependencies = [
    "comfyui-workflow-templates==0.7.64",
    "cupy-cuda12x>=12.3.0",
    "decord>=0.6.0",
-   "diffusers>=0.33.0",
+   "diffusers>=0.33.1",
    "dill>=0.4.0",
    "einops>=0.8.1",
    "filelock>=3.19.1",
@@ -89,6 +89,7 @@ dependencies = [
    "yacs>=0.1.8",
    "yapf>=0.43.0",
    "yarl>=1.18.0",
+   "rotary-embedding-torch>=0.5.3",
 ]
 
 [project.urls]
