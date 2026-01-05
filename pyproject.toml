@@ -40,7 +40,7 @@ dependencies = [
    "mediapipe>=0.10.13",
    "moviepy>=2.2.1",
    "mss>=10.1.0",
-   "numpy>=1.25.0",
+   "numpy>=1.26.4",
    "omegaconf>=2.3.0",
    "onnx>=1.14.0",
    "onnxruntime>=1.15.0",
@@ -90,6 +90,8 @@ dependencies = [
    "yapf>=0.43.0",
    "yarl>=1.18.0",
    "rotary-embedding-torch>=0.5.3",
+   "pywavelets>=1.9.0",
+   "httpx>=0.24.0",
 ]
 
 [project.urls]
