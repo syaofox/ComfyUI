@@ -96,6 +96,7 @@ dependencies = [
    "qwen-vl-utils>=0.0.14",
    "bitsandbytes>=0.49.0",
    "triton>=3.5.1 ; sys_platform == 'linux'",
+   "taichi>=1.7.4",
 ]
 
 [project.urls]
