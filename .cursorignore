@@ -1,0 +1,112 @@
+# Add directories or file patterns to ignore during indexing (e.g. foo/ or *.csv)
+
+# Python 缓存和编译文件
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# 虚拟环境
+venv/
+.venv/
+env/
+.env/
+ENV/
+
+# 模型文件目录（通常很大，不需要索引）
+/models/
+model_cache/
+checkpoints/
+loras/
+embeddings/
+vae/
+upscale_models/
+controlnet/
+clip/
+unet/
+*.safetensors
+*.ckpt
+*.pt
+*.pth
+*.bin
+
+# 输出和临时文件
+/output/
+/input/
+/temp/
+*.log
+*.tmp
+
+# 用户数据和自定义节点（可能包含大量第三方代码）
+/custom_nodes/
+/user/
+
+# Web 扩展和构建产物
+/web/extensions/*
+/web_custom_versions/
+*.min.js
+*.min.css
+
+# IDE 和编辑器配置
+.vscode/
+.idea/
+.vs/
+*.swp
+*.swo
+*~
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 测试数据
+/tests-ui/data/object_info.json
+
+# 缓存目录
+.cache/
+*.cache
+
+# 构建和依赖文件
+whl/
+*.whl
+uv.lock
+node_modules/
+dist/
+build/
+
+# 配置文件（可能包含敏感信息）
+extra_model_paths.yaml
+*.env
+.env.*
+
+# API 文档生成文件
+openapi.yaml
+filtered-openapi.yaml
+
+# GitHub 相关
+.github/
+
+# 数据库迁移文件（如果不需要索引）
+alembic_db/versions/*.pyc
+
+# 大文件和媒体文件
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# 图像文件（如果不需要索引，取消注释）
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
