@@ -40,7 +40,8 @@ unet/
 *.tmp
 
 # 用户数据和自定义节点（可能包含大量第三方代码）
-/custom_nodes/
+/custom_nodes/*
+!/custom_nodes/sfnodes/
 /user/
 
 # Web 扩展和构建产物
