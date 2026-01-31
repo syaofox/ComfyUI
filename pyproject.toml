@@ -181,6 +181,7 @@ messages_control.disable = [
   "unnecessary-lambda-assignment",
   "no-else-return",
   "unused-variable",
+  "flash-attn",
 ]
 
 [tool.uv.sources]
