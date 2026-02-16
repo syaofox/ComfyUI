@@ -15,6 +15,8 @@ NC='\033[0m' # No Color
 # 配置
 CUSTOM_NODES_DIR="/mnt/github/ComfyUI/custom_nodes"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MAX_RETRIES=3        # 失败时最大重试次数
+RETRY_DELAY=2        # 重试间隔（秒）
 
 # 统计变量
 total_repos=0
@@ -82,12 +84,22 @@ check_repo_updates() {
         return 1
     fi
     
-    # 获取远程更新
-    if ! git fetch origin "$current_branch" >/dev/null 2>&1; then
-        errors+=("$repo_name: 无法获取远程更新")
-        echo "  → 错误: 无法获取远程更新"
-        return 1
-    fi
+    # 获取远程更新（带重试）
+    local fetch_attempt=1
+    while [ $fetch_attempt -le $MAX_RETRIES ]; do
+        if git fetch origin "$current_branch" >/dev/null 2>&1; then
+            break
+        fi
+        if [ $fetch_attempt -lt $MAX_RETRIES ]; then
+            echo "  → 获取远程更新失败，${RETRY_DELAY} 秒后重试 ($((MAX_RETRIES - fetch_attempt)) 次剩余)..."
+            sleep $RETRY_DELAY
+        else
+            errors+=("$repo_name: 无法获取远程更新 (已重试 $MAX_RETRIES 次)")
+            echo "  → 错误: 无法获取远程更新"
+            return 1
+        fi
+        fetch_attempt=$((fetch_attempt + 1))
+    done
     
     # 检查是否有更新
     local commits_behind
@@ -114,7 +126,7 @@ check_repo_updates() {
     fi
 }
 
-# 函数: 执行仓库更新
+# 函数: 执行仓库更新（带重试）
 update_repo() {
     local repo_name="$1"
     local repo_dir="$2"
@@ -127,21 +139,29 @@ update_repo() {
     local current_branch
     current_branch=$(get_current_branch "$repo_dir")
     
-    # 执行 git pull
-    if git pull origin "$current_branch"; then
-        echo -e "  → ${GREEN}更新成功${NC}"
-        updated_repos=$((updated_repos + 1))
-        return 0
-    else
-        local error_msg="git pull 失败"
-        errors+=("$repo_name: $error_msg")
-        echo -e "  → ${RED}更新失败: $error_msg${NC}"
-        failed_repos=$((failed_repos + 1))
-        return 1
-    fi
+    # 执行 git pull（带重试）
+    local attempt=1
+    while [ $attempt -le $MAX_RETRIES ]; do
+        if git pull origin "$current_branch"; then
+            echo -e "  → ${GREEN}更新成功${NC}"
+            updated_repos=$((updated_repos + 1))
+            return 0
+        fi
+        if [ $attempt -lt $MAX_RETRIES ]; then
+            echo -e "  → ${YELLOW}第 $attempt 次失败，${RETRY_DELAY} 秒后重试 ($((MAX_RETRIES - attempt)) 次剩余)...${NC}"
+            sleep $RETRY_DELAY
+        fi
+        attempt=$((attempt + 1))
+    done
+    
+    local error_msg="git pull 失败 (已重试 $MAX_RETRIES 次)"
+    errors+=("$repo_name: $error_msg")
+    echo -e "  → ${RED}更新失败: $error_msg${NC}"
+    failed_repos=$((failed_repos + 1))
+    return 1
 }
 
-# 函数: 更新依赖
+# 函数: 更新依赖（带重试）
 update_dependencies() {
     local repo_name="$1"
     local repo_dir="$2"
@@ -153,16 +173,25 @@ update_dependencies() {
         # 切换到主项目目录执行 uv add
         cd "$SCRIPT_DIR"
         
-        if uv add -r "$requirements_file"; then
-            echo -e "  → ${GREEN}依赖更新成功${NC}"
-            requirements_updated=$((requirements_updated + 1))
-            return 0
-        else
-            local error_msg="uv add 失败"
-            errors+=("$repo_name: $error_msg")
-            echo -e "  → ${RED}依赖更新失败: $error_msg${NC}"
-            return 1
-        fi
+        # 执行 uv add（带重试）
+        local attempt=1
+        while [ $attempt -le $MAX_RETRIES ]; do
+            if uv add -r "$requirements_file"; then
+                echo -e "  → ${GREEN}依赖更新成功${NC}"
+                requirements_updated=$((requirements_updated + 1))
+                return 0
+            fi
+            if [ $attempt -lt $MAX_RETRIES ]; then
+                echo -e "  → ${YELLOW}第 $attempt 次失败，${RETRY_DELAY} 秒后重试 ($((MAX_RETRIES - attempt)) 次剩余)...${NC}"
+                sleep $RETRY_DELAY
+            fi
+            attempt=$((attempt + 1))
+        done
+        
+        local error_msg="uv add 失败 (已重试 $MAX_RETRIES 次)"
+        errors+=("$repo_name: $error_msg")
+        echo -e "  → ${RED}依赖更新失败: $error_msg${NC}"
+        return 1
     else
         echo "  → 跳过 (requirements.txt 不存在)"
         return 1
